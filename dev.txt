@@ -1,0 +1,16 @@
+[DONE] Phase 1 — Models: Category, Tag, Product, ProductImage, ProductVariant, Review, Order, OrderItem, UserProfile, Wishlist
+[DONE] Phase 1 — Migrations applied for products, orders, users
+[DONE] Phase 1 — Session cart (cart.py), settings wired up
+[DONE] Phase 2 — All frontend templates: home, shop, collection, product_detail, search, cart, checkout, order_confirm, login, register, dashboard
+[DONE] Phase 2 — Components: announcement_bar, navbar (mega menu), footer, newsletter_popup, product_card
+[DONE] Phase 2 — HTMX cart: add/update/remove, cart drawer, cart count
+[DONE] Phase 2 — Wishlist HTMX toggle (users/partials/wishlist_btn.jinja) — was missing, now fixed
+[DONE] Phase 3 — control/ app created with full Mission Control CMS at /admin/
+[DONE] Phase 3 — AdminLog model + migration applied (control/migrations/0001_initial.py)
+[DONE] Phase 3 — control/services.py: dashboard stats, ban/unban, order status update, log_action
+[DONE] Phase 3 — control/forms.py: ProductForm, CategoryForm, ProductImageForm, OrderStatusForm
+[DONE] Phase 3 — control/views.py: Dashboard, Stats (HTMX), Users (HTMX search), UserDetail, Ban/Unban, Products (HTMX search), ProductCreate/Edit/Delete, ImageUpload/Delete, Categories CRUD, Orders (status filter), OrderDetail
+[DONE] Phase 3 — control/urls.py: all routes under /admin/ namespace=control
+[DONE] Phase 3 — Templates: base_control, dashboard, users, user_detail, products, product_edit, categories, category_edit, orders, order_detail + all partials
+[DONE] Phase 3 — Added control to INSTALLED_APPS, wired path('admin/', include('control.urls')) in config/urls.py
+[IN PROGRESS] Phase 4 — Payment integration, email notifications, SEO

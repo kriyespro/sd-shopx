@@ -1,0 +1,64 @@
+{% extends "control/base_control.jinja" %}
+
+{% block title %}Categories{% endblock %}
+{% block page_title %}Categories{% endblock %}
+{% block page_subtitle %}{{ categories|length }} categories{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url('control:category_create') }}" class="ctrl-btn ctrl-btn-gold">
+  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+  Add Category
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="ctrl-card overflow-hidden">
+  <table class="w-full text-xs">
+    <thead class="border-b border-gray-700">
+      <tr class="text-gray-500">
+        <th class="text-left px-4 py-3 font-medium">Category</th>
+        <th class="text-left px-4 py-3 font-medium">Parent</th>
+        <th class="text-left px-4 py-3 font-medium">Position</th>
+        <th class="text-left px-4 py-3 font-medium">Status</th>
+        <th class="text-left px-4 py-3 font-medium">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-800">
+      {% for cat in categories %}
+      <tr class="hover:bg-gray-800/30">
+        <td class="px-4 py-3">
+          <div class="flex items-center gap-3">
+            {% if cat.image %}
+            <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="w-8 h-8 object-cover rounded flex-shrink-0">
+            {% else %}
+            <div class="w-8 h-8 bg-gray-800 rounded flex-shrink-0"></div>
+            {% endif %}
+            <span class="font-medium text-gray-200">{{ cat.name }}</span>
+          </div>
+        </td>
+        <td class="px-4 py-3 text-gray-400">{{ cat.parent.name if cat.parent else '—' }}</td>
+        <td class="px-4 py-3 text-gray-400">{{ cat.position }}</td>
+        <td class="px-4 py-3">
+          {% if cat.is_active %}
+          <span class="badge bg-green-900/40 text-green-400">Active</span>
+          {% else %}
+          <span class="badge bg-gray-700 text-gray-400">Inactive</span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-3">
+          <div class="flex gap-2">
+            <a href="{{ url('control:category_edit', pk=cat.pk) }}" class="ctrl-btn ctrl-btn-gray py-1 px-2">Edit</a>
+            <form method="post" action="{{ url('control:category_delete', pk=cat.pk) }}" onsubmit="return confirm('Delete this category?')">
+              {{ csrf_input(request) }}
+              <button type="submit" class="ctrl-btn ctrl-btn-red py-1 px-2">Del</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">No categories yet</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

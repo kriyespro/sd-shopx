@@ -1,0 +1,58 @@
+<!-- Cart Drawer Content (loaded via HTMX) -->
+<div class="flex items-center justify-between p-6 border-b">
+  <h2 class="font-serif text-xl">Your Cart ({{ cart|length }} items)</h2>
+  <button @click="cartOpen = false" class="text-gray-400 hover:text-gray-900">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
+  </button>
+</div>
+
+<div class="flex-1 overflow-y-auto p-4 space-y-3">
+  {% if cart|list|length > 0 %}
+    {% for item in cart %}
+    {% if item.product is defined %}
+    <div class="flex gap-3 items-start p-3 bg-gray-50">
+      <a href="{{ url('products:detail', slug=item.product.slug) }}" class="flex-shrink-0 w-16 h-16 bg-white overflow-hidden">
+        {% if item.product.primary_image %}
+          <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
+        {% else %}
+          <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+        {% endif %}
+      </a>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-medium uppercase tracking-wide text-gray-800 line-clamp-2">{{ item.name }}</p>
+        {% if item.metal %}<p class="text-xs text-gray-400">{{ item.metal.replace('_', ' ').title() }}</p>{% endif %}
+        <p class="text-sm font-medium text-navy-700 mt-1">Rs. {{ "{:,.2f}".format(item.total_price) }}</p>
+      </div>
+      <button hx-post="{{ url('cart:remove', product_id=item.product.id) }}"
+              hx-get="{{ url('cart:drawer') }}"
+              hx-target="closest .flex-col"
+              hx-swap="innerHTML"
+              class="text-gray-300 hover:text-red-500 flex-shrink-0 mt-0.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    {% endif %}
+    {% endfor %}
+  {% else %}
+  <div class="text-center py-16">
+    <svg class="w-12 h-12 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+    <p class="text-sm text-gray-400">Your cart is empty</p>
+  </div>
+  {% endif %}
+</div>
+
+{% if cart|list|length > 0 %}
+<div class="p-4 border-t border-gray-100 space-y-2">
+  <div class="flex justify-between mb-3 text-sm font-medium">
+    <span class="text-gray-700">Subtotal</span>
+    <span class="text-gray-900">Rs. {{ "{:,.2f}".format(cart.get_total_price()) }}</span>
+  </div>
+  <p class="text-xs text-gray-400 text-center mb-3">Shipping & duties included</p>
+  <a href="{{ url('cart:detail') }}" @click="cartOpen = false"
+     class="btn-outline w-full justify-center py-3 text-xs">View Cart</a>
+  <a href="{{ url('orders:checkout') }}" @click="cartOpen = false"
+     class="btn-navy w-full py-3 text-xs">Checkout &rarr;</a>
+</div>
+{% endif %}

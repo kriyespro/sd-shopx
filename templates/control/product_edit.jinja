@@ -1,0 +1,144 @@
+{% extends "control/base_control.jinja" %}
+
+{% block title %}{{ 'Edit' if product else 'New' }} Product{% endblock %}
+{% block page_title %}{{ 'Edit Product' if product else 'New Product' }}{% endblock %}
+{% block page_subtitle %}{{ product.name[:60] if product else 'Add a new product to the store' }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url('control:products') }}" class="ctrl-btn ctrl-btn-gray">← Back</a>
+{% if product %}
+<a href="{{ url('products:detail', slug=product.slug) }}" target="_blank" class="ctrl-btn ctrl-btn-gray text-xs">View →</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <!-- Product Form -->
+  <div class="lg:col-span-2">
+    <form method="post" class="ctrl-card p-6 space-y-5">
+      {{ csrf_input(request) }}
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="md:col-span-2">
+          <label class="ctrl-label">Product Name</label>
+          {{ form.name }}
+          {% if form.name.errors %}<p class="text-red-400 text-xs mt-1">{{ form.name.errors[0] }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="ctrl-label">Category</label>
+          {{ form.category }}
+        </div>
+        <div>
+          <label class="ctrl-label">Metal Type</label>
+          {{ form.metal_type }}
+        </div>
+        <div>
+          <label class="ctrl-label">Diamond Shape</label>
+          {{ form.diamond_shape }}
+        </div>
+        <div>
+          <label class="ctrl-label">Certification</label>
+          {{ form.certification }}
+        </div>
+        <div>
+          <label class="ctrl-label">Price (₹)</label>
+          {{ form.price }}
+          {% if form.price.errors %}<p class="text-red-400 text-xs mt-1">{{ form.price.errors[0] }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="ctrl-label">Compare Price (₹)</label>
+          {{ form.compare_price }}
+        </div>
+        <div>
+          <label class="ctrl-label">Carat Weight</label>
+          {{ form.carat_weight }}
+        </div>
+        <div>
+          <label class="ctrl-label">Stock</label>
+          {{ form.stock }}
+        </div>
+        <div class="md:col-span-2">
+          <label class="ctrl-label">Short Description</label>
+          {{ form.short_description }}
+        </div>
+        <div class="md:col-span-2">
+          <label class="ctrl-label">Full Description</label>
+          {{ form.description }}
+        </div>
+      </div>
+
+      <!-- Toggles -->
+      <div class="flex flex-wrap gap-5 pt-2 border-t border-gray-700">
+        <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-300">
+          {{ form.is_active }} Active
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-300">
+          {{ form.is_featured }} Featured
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-300">
+          {{ form.is_new_arrival }} New Arrival
+        </label>
+      </div>
+
+      <button type="submit" class="ctrl-btn ctrl-btn-gold">
+        {{ 'Save Changes' if product else 'Create Product' }}
+      </button>
+    </form>
+  </div>
+
+  <!-- Images -->
+  <div class="space-y-4">
+    {% if product %}
+    <!-- Upload Image -->
+    <div class="ctrl-card p-5">
+      <h3 class="text-sm font-semibold text-gray-200 mb-4">Images</h3>
+      <form method="post" action="{{ url('control:product_image_upload', pk=product.pk) }}" enctype="multipart/form-data" class="space-y-3">
+        {{ csrf_input(request) }}
+        <div>
+          <label class="ctrl-label">Upload Image</label>
+          {{ image_form.image }}
+        </div>
+        <div>
+          <label class="ctrl-label">Alt Text</label>
+          {{ image_form.alt }}
+        </div>
+        <div class="flex items-center gap-2">
+          {{ image_form.is_primary }}
+          <label class="ctrl-label mb-0 text-gray-400">Set as primary</label>
+        </div>
+        <button type="submit" class="ctrl-btn ctrl-btn-gray w-full justify-center">Upload</button>
+      </form>
+    </div>
+
+    <!-- Existing Images -->
+    {% if images %}
+    <div class="ctrl-card p-5">
+      <h3 class="text-xs font-semibold text-gray-400 mb-3 uppercase tracking-widest">Uploaded Images</h3>
+      <div class="grid grid-cols-3 gap-2">
+        {% for img in images %}
+        <div class="relative group">
+          <img src="{{ img.image.url }}" alt="{{ img.alt }}" class="w-full aspect-square object-cover rounded">
+          {% if img.is_primary %}
+          <span class="absolute top-1 left-1 badge bg-gold-500 text-white text-xs">Primary</span>
+          {% endif %}
+          <form method="post" action="{{ url('control:product_image_delete', pk=img.pk) }}"
+                onsubmit="return confirm('Delete image?')"
+                class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            {{ csrf_input(request) }}
+            <button type="submit" class="w-5 h-5 bg-red-600 rounded-full text-white text-xs flex items-center justify-center">×</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="ctrl-card p-5">
+      <p class="text-xs text-gray-500">Save the product first, then upload images.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

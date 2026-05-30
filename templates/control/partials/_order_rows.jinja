@@ -1,0 +1,18 @@
+{% set sc = {'pending': 'bg-yellow-900/50 text-yellow-300', 'confirmed': 'bg-blue-900/50 text-blue-300', 'processing': 'bg-purple-900/50 text-purple-300', 'shipped': 'bg-indigo-900/50 text-indigo-300', 'delivered': 'bg-green-900/50 text-green-300', 'cancelled': 'bg-red-900/50 text-red-300', 'refunded': 'bg-gray-700 text-gray-400'} %}
+{% for order in orders %}
+<tr class="hover:bg-gray-800/30 text-xs">
+  <td class="px-4 py-3">
+    <a href="{{ url('control:order_detail', pk=order.pk) }}" class="text-gold-400 hover:underline font-medium">#{{ order.order_number }}</a>
+  </td>
+  <td class="px-4 py-3 text-gray-300">{{ order.first_name }} {{ order.last_name }}</td>
+  <td class="px-4 py-3 text-gray-400">{{ order.items.count() }} item{{ 's' if order.items.count() != 1 }}</td>
+  <td class="px-4 py-3 text-gray-200 font-medium">₹{{ order.total }}</td>
+  <td class="px-4 py-3 text-gray-500">{{ order.created_at.strftime('%b %d, %Y') }}</td>
+  <td class="px-4 py-3"><span class="badge {{ sc.get(order.status, 'bg-gray-700 text-gray-300') }}">{{ order.status }}</span></td>
+  <td class="px-4 py-3">
+    <a href="{{ url('control:order_detail', pk=order.pk) }}" class="ctrl-btn ctrl-btn-gray py-1 px-2">Manage</a>
+  </td>
+</tr>
+{% else %}
+<tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">No orders found</td></tr>
+{% endfor %}

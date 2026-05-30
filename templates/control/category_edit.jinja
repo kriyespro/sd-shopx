@@ -1,0 +1,50 @@
+{% extends "control/base_control.jinja" %}
+
+{% block title %}{{ 'Edit' if category else 'New' }} Category{% endblock %}
+{% block page_title %}{{ 'Edit Category' if category else 'New Category' }}{% endblock %}
+{% block page_subtitle %}{{ category.name if category else 'Create a new collection category' }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url('control:categories') }}" class="ctrl-btn ctrl-btn-gray">← Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-xl">
+  <form method="post" enctype="multipart/form-data" class="ctrl-card p-6 space-y-5">
+    {{ csrf_input(request) }}
+    <div>
+      <label class="ctrl-label">Name</label>
+      {{ form.name }}
+      {% if form.name.errors %}<p class="text-red-400 text-xs mt-1">{{ form.name.errors[0] }}</p>{% endif %}
+    </div>
+    <div>
+      <label class="ctrl-label">Description</label>
+      {{ form.description }}
+    </div>
+    <div>
+      <label class="ctrl-label">Parent Category</label>
+      {{ form.parent }}
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="ctrl-label">Position (sort order)</label>
+        {{ form.position }}
+      </div>
+    </div>
+    <div>
+      <label class="ctrl-label">Category Image</label>
+      {{ form.image }}
+      {% if category and category.image %}
+      <img src="{{ category.image.url }}" alt="{{ category.name }}" class="mt-2 h-16 rounded">
+      {% endif %}
+    </div>
+    <div class="flex items-center gap-2">
+      {{ form.is_active }}
+      <label class="ctrl-label mb-0 text-gray-400">Active</label>
+    </div>
+    <button type="submit" class="ctrl-btn ctrl-btn-gold">
+      {{ 'Save Changes' if category else 'Create Category' }}
+    </button>
+  </form>
+</div>
+{% endblock %}

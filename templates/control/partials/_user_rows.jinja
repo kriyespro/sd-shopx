@@ -1,0 +1,45 @@
+{% for user in users %}
+<tr class="hover:bg-gray-800/30 text-xs">
+  <td class="px-4 py-3">
+    <div class="flex items-center gap-2.5">
+      <div class="w-7 h-7 rounded-full bg-navy-700 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+        {{ user.first_name[0] if user.first_name else user.username[0] }}
+      </div>
+      <div>
+        <p class="font-medium text-gray-200">{{ user.get_full_name() or user.username }}</p>
+        {% if user.is_staff %}<span class="badge bg-gold-500/20 text-gold-400">staff</span>{% endif %}
+        {% if user.is_superuser %}<span class="badge bg-red-900/30 text-red-400">superuser</span>{% endif %}
+      </div>
+    </div>
+  </td>
+  <td class="px-4 py-3 text-gray-400">{{ user.email }}</td>
+  <td class="px-4 py-3 text-gray-500">{{ user.date_joined.strftime('%b %d, %Y') }}</td>
+  <td class="px-4 py-3">
+    {% if user.is_active %}
+    <span class="badge bg-green-900/40 text-green-400">Active</span>
+    {% else %}
+    <span class="badge bg-red-900/40 text-red-400">Banned</span>
+    {% endif %}
+  </td>
+  <td class="px-4 py-3">
+    <div class="flex items-center gap-2">
+      <a href="{{ url('control:user_detail', pk=user.pk) }}" class="ctrl-btn ctrl-btn-gray py-1 px-2">View</a>
+      {% if not user.is_superuser %}
+        {% if user.is_active %}
+        <form method="post" action="{{ url('control:ban_user', pk=user.pk) }}" onsubmit="return confirm('Ban this user?')">
+          {{ csrf_input(request) }}
+          <button type="submit" class="ctrl-btn ctrl-btn-red py-1 px-2">Ban</button>
+        </form>
+        {% else %}
+        <form method="post" action="{{ url('control:unban_user', pk=user.pk) }}">
+          {{ csrf_input(request) }}
+          <button type="submit" class="ctrl-btn ctrl-btn-gray py-1 px-2 text-green-400">Unban</button>
+        </form>
+        {% endif %}
+      {% endif %}
+    </div>
+  </td>
+</tr>
+{% else %}
+<tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">No users found</td></tr>
+{% endfor %}

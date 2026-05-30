@@ -1,0 +1,40 @@
+{% for product in products %}
+<tr class="hover:bg-gray-800/30 text-xs">
+  <td class="px-4 py-3">
+    <div class="flex items-center gap-3">
+      {% if product.primary_image %}
+      <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}"
+           class="w-10 h-10 object-cover rounded flex-shrink-0">
+      {% else %}
+      <div class="w-10 h-10 bg-gray-800 rounded flex-shrink-0"></div>
+      {% endif %}
+      <div>
+        <p class="font-medium text-gray-200 line-clamp-1">{{ product.name[:50] }}</p>
+        <p class="text-gray-500">{{ product.certification.upper() if product.certification != 'none' else '' }}</p>
+      </div>
+    </div>
+  </td>
+  <td class="px-4 py-3 text-gray-400">{{ product.category.name }}</td>
+  <td class="px-4 py-3 text-gray-200">₹{{ product.price }}</td>
+  <td class="px-4 py-3 text-gray-400">{{ product.stock }}</td>
+  <td class="px-4 py-3">
+    {% if product.is_active %}
+    <span class="badge bg-green-900/40 text-green-400">Active</span>
+    {% else %}
+    <span class="badge bg-gray-700 text-gray-400">Inactive</span>
+    {% endif %}
+    {% if product.is_featured %}<span class="badge bg-gold-500/20 text-gold-400 ml-1">Featured</span>{% endif %}
+  </td>
+  <td class="px-4 py-3">
+    <div class="flex gap-2">
+      <a href="{{ url('control:product_edit', pk=product.pk) }}" class="ctrl-btn ctrl-btn-gray py-1 px-2">Edit</a>
+      <form method="post" action="{{ url('control:product_delete', pk=product.pk) }}" onsubmit="return confirm('Delete this product?')">
+        {{ csrf_input(request) }}
+        <button type="submit" class="ctrl-btn ctrl-btn-red py-1 px-2">Del</button>
+      </form>
+    </div>
+  </td>
+</tr>
+{% else %}
+<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">No products found</td></tr>
+{% endfor %}

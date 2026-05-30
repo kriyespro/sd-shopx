@@ -1,0 +1,32 @@
+{% extends "base.jinja" %}
+{% from 'components/product_card.jinja' import product_card %}
+
+{% block title %}Search{% if query %}: {{ query }}{% endif %} — {{ site_brand }}{% endblock %}
+
+{% block content %}
+<div class="page-bg min-h-screen py-10">
+  <div class="max-w-screen-xl mx-auto px-6">
+    <div class="mb-8">
+      <h1 class="font-serif text-3xl text-navy-800">
+        {% if query %}Results for "{{ query }}"{% else %}Search{% endif %}
+      </h1>
+      {% if products %}
+      <p class="text-sm text-gray-500 mt-1">{{ products|list|length }} results found</p>
+      {% endif %}
+    </div>
+    {% if products %}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+      {% for product in products %}
+      <div>{{ product_card(product) }}</div>
+      {% endfor %}
+    </div>
+    {% elif query %}
+    <div class="text-center py-24 bg-white border border-gray-100">
+      <p class="font-serif text-2xl text-gray-400 mb-4">No results for "{{ query }}"</p>
+      <p class="text-sm text-gray-400 mb-6">Try searching with different keywords.</p>
+      <a href="{{ url('products:shop') }}" class="btn-outline">Browse All Products &rarr;</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

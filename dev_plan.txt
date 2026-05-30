@@ -1,0 +1,45 @@
+## Project: MnxStore — Lab-Grown Diamond Jewelry SaaS (antiquecut.com clone)
+
+### Phase 1 — Foundation [DONE]
+- Django 5 project setup with Jinja2, HTMX, Alpine.js, Tailwind
+- Product, Category, Tag, ProductImage, ProductVariant, Review models
+- Order, OrderItem models
+- UserProfile, Wishlist models
+- Session-based cart (no DB model needed)
+- All migrations applied
+
+### Phase 2 — Frontend [DONE]
+- Homepage: hero, trust strip, shape selector, category grid, featured products, testimonials
+- Product Collection page (filterable, sortable)
+- Product Detail page (image gallery, variants, reviews, add-to-cart)
+- Shop All page (filters: category/metal/shape/price, sort)
+- Search page
+- Cart drawer (HTMX) + Cart page
+- Checkout form + Order Confirm page
+- User auth: login, register, dashboard, wishlist toggle
+- Announcement bar, navbar, footer, newsletter popup
+
+### Phase 3 — Mission Control CMS [DONE]
+- control/ app at /admin/
+- AdminLog model for audit trail
+- Dashboard: stats cards (HTMX live 30s refresh), recent orders, signups, activity feed
+- User Manager: list, search (HTMX), ban/unban, user detail + orders
+- Product Manager: list, search (HTMX), create/edit/delete, image upload
+- Category Manager: CRUD
+- Order Manager: list (filter by status), detail, status update
+
+### Phase 4 — Polish & Revenue [TODO]
+- Email notifications (order confirm, shipping)
+- Payment gateway integration (Razorpay or Stripe)
+- SEO: sitemap, structured data
+- Review/rating submit form
+- Custom ring builder flow
+- Blog app
+- Promotions / coupon codes
+
+### Phase 5 — Production [TODO]
+- Move to PostgreSQL
+- Configure Gunicorn + Nginx
+- S3/Cloudinary for media
+- Environment variables via .env
+- SSL, security headers

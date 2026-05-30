@@ -1,0 +1,81 @@
+{% extends "base.jinja" %}
+{% from 'components/product_card.jinja' import product_card %}
+
+{% block title %}My Account — {{ site_brand }}{% endblock %}
+
+{% block content %}
+<div class="page-bg min-h-screen py-10">
+  <div class="max-w-screen-xl mx-auto px-6">
+    <h1 class="font-serif text-3xl text-navy-800 mb-8">My Account</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <!-- Sidebar -->
+      <div class="bg-white border border-gray-100 shadow-sm p-6 h-fit">
+        <div class="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
+          <div class="w-12 h-12 bg-navy-700 rounded-full flex items-center justify-center">
+            <span class="text-white font-serif text-xl">{{ request.user.first_name[0] if request.user.first_name else request.user.username[0] }}</span>
+          </div>
+          <div>
+            <p class="font-medium text-gray-900">{{ request.user.get_full_name() or request.user.username }}</p>
+            <p class="text-xs text-gray-400">{{ request.user.email }}</p>
+          </div>
+        </div>
+        <nav class="space-y-1 text-sm">
+          <a href="#orders" class="block py-2 px-3 text-navy-700 bg-navy-50 font-medium rounded">My Orders</a>
+          <a href="#wishlist" class="block py-2 px-3 text-gray-600 hover:text-navy-700 hover:bg-gray-50 rounded transition-colors">Wishlist</a>
+          <a href="{{ url('users:logout') }}" class="block py-2 px-3 text-red-500 hover:bg-red-50 rounded transition-colors mt-4">Sign Out</a>
+        </nav>
+      </div>
+
+      <!-- Main content -->
+      <div class="lg:col-span-3 space-y-8">
+        <!-- Orders -->
+        <div id="orders" class="bg-white border border-gray-100 shadow-sm p-6">
+          <h2 class="font-serif text-xl text-navy-800 mb-5">Recent Orders</h2>
+          {% if orders %}
+          <div class="space-y-3">
+            {% for order in orders %}
+            <div class="border border-gray-100 p-4 flex items-center justify-between hover:border-navy-200 transition-colors">
+              <div>
+                <p class="text-sm font-medium text-navy-700 font-mono">{{ order.order_number }}</p>
+                <p class="text-xs text-gray-400 mt-0.5">{{ order.created_at.strftime('%d %b %Y') }}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-medium text-gray-900">Rs. {{ "{:,.2f}".format(order.total) }}</p>
+                <span class="text-xs px-2 py-0.5 capitalize font-medium
+                  {% if order.status == 'delivered' %}bg-green-100 text-green-700
+                  {% elif order.status == 'cancelled' %}bg-red-100 text-red-700
+                  {% else %}bg-amber-100 text-amber-700{% endif %}">
+                  {{ order.get_status_display() }}
+                </span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-10">
+            <svg class="w-12 h-12 text-gray-200 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            <p class="text-sm text-gray-400 mb-4">No orders yet.</p>
+            <a href="{{ url('products:shop') }}" class="btn-outline">Start Shopping &rarr;</a>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Wishlist -->
+        <div id="wishlist" class="bg-white border border-gray-100 shadow-sm p-6">
+          <h2 class="font-serif text-xl text-navy-800 mb-5">Wishlist</h2>
+          {% if wishlist %}
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {% for w in wishlist %}
+            <div>{{ product_card(w.product) }}</div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="text-sm text-gray-400 text-center py-8">No items in your wishlist yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

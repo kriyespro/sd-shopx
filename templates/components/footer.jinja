@@ -1,0 +1,137 @@
+<!-- Footer -->
+<footer class="bg-navy-800 text-white">
+  <!-- Newsletter Strip -->
+  <div class="bg-navy-700 py-10">
+    <div class="max-w-screen-xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div>
+        <p class="text-xs tracking-widest uppercase text-gold-400 mb-1">Stay Connected</p>
+        <h3 class="font-serif text-2xl font-normal">Join the {{ site_brand }} Family</h3>
+        <p class="text-sm text-gray-300 mt-1">Subscribe for exclusive offers, new arrivals & jewelry care tips.</p>
+      </div>
+      <form class="flex w-full md:w-auto gap-0 max-w-md" hx-post="#" hx-swap="none">
+        {{ csrf_input(request) }}
+        <input type="email" name="email" placeholder="Your email address"
+               class="flex-1 px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/50 text-sm outline-none focus:border-gold-400 transition-colors min-w-0">
+        <button type="submit" class="bg-gold-500 text-white px-6 py-3 text-xs font-medium tracking-widest uppercase hover:bg-gold-400 transition-colors whitespace-nowrap flex-shrink-0">
+          Subscribe
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Footer -->
+  <div class="max-w-screen-xl mx-auto px-6 py-16">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10">
+      <!-- Brand Column -->
+      <div class="col-span-2 lg:col-span-1">
+        <a href="{{ url('core:home') }}" class="flex flex-col items-start mb-4">
+          <div class="flex items-center gap-1 mb-1">
+            <svg class="w-3 h-3 text-gold-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+            <svg class="w-4 h-4 text-gold-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+            <svg class="w-3 h-3 text-gold-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+          </div>
+          <span class="font-serif text-xl tracking-[0.12em] uppercase text-white">{{ site_brand }}</span>
+        </a>
+        <p class="text-sm text-gray-400 leading-relaxed">Crafting timeless, IGI/GIA certified lab-grown diamond jewelry since 2018. Ethical, sustainable, beautiful.</p>
+        <!-- Social Icons -->
+        <div class="flex items-center gap-3 mt-5">
+          <a href="#" class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-gold-400 hover:border-gold-400 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385h-3.047v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953h-1.514c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+          <a href="#" class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-gold-400 hover:border-gold-400 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          </a>
+          <a href="#" class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-gold-400 hover:border-gold-400 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0zm0 3c.718 0 1.415.094 2.08.272-.017.084-.027.17-.027.26 0 1.27.974 2.3 2.174 2.3.344 0 .67-.086.96-.24A7.038 7.038 0 0117 10c0 3.866-3.134 7-7 7s-7-3.134-7-7 3.134-7 7-7z"/></svg>
+          </a>
+          <a href="#" class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-gold-400 hover:border-gold-400 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.26 8.26 0 004.84 1.55V6.79a4.85 4.85 0 01-1.07-.1z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Shop -->
+      <div>
+        <h4 class="text-xs font-semibold tracking-widest uppercase text-gold-400 mb-5">Shop</h4>
+        <ul class="space-y-3 text-sm text-gray-400">
+          <li><a href="/shop/collection/engagement-rings/" class="hover:text-white transition-colors">Engagement Rings</a></li>
+          <li><a href="/shop/collection/toi-et-moi/" class="hover:text-white transition-colors">Toi Et Moi Rings</a></li>
+          <li><a href="/shop/collection/lab-grown-diamonds/" class="hover:text-white transition-colors">Lab-Grown Diamonds</a></li>
+          <li><a href="/shop/collection/necklaces/" class="hover:text-white transition-colors">Necklaces</a></li>
+          <li><a href="/shop/collection/earrings/" class="hover:text-white transition-colors">Earrings</a></li>
+          <li><a href="/shop/collection/bracelets/" class="hover:text-white transition-colors">Bracelets</a></li>
+          <li><a href="/shop/" class="hover:text-white transition-colors">View All</a></li>
+        </ul>
+      </div>
+
+      <!-- Company -->
+      <div>
+        <h4 class="text-xs font-semibold tracking-widest uppercase text-gold-400 mb-5">Company</h4>
+        <ul class="space-y-3 text-sm text-gray-400">
+          <li><a href="{{ url('core:about') }}" class="hover:text-white transition-colors">Our Story</a></li>
+          <li><a href="{{ url('core:contact') }}" class="hover:text-white transition-colors">Contact Us</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Reviews</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+          <li><a href="{{ url('users:login') }}" class="hover:text-white transition-colors">My Account</a></li>
+        </ul>
+      </div>
+
+      <!-- Help -->
+      <div>
+        <h4 class="text-xs font-semibold tracking-widest uppercase text-gold-400 mb-5">Help</h4>
+        <ul class="space-y-3 text-sm text-gray-400">
+          <li><a href="#" class="hover:text-white transition-colors">Shipping Policy</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Return Policy</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Ring Size Guide</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Diamond Guide</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <h4 class="text-xs font-semibold tracking-widest uppercase text-gold-400 mb-5">Contact</h4>
+        <ul class="space-y-3 text-sm text-gray-400">
+          <li class="flex items-start gap-2">
+            <svg class="w-4 h-4 flex-shrink-0 mt-0.5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+            <span>+91 82383 66075</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <svg class="w-4 h-4 flex-shrink-0 mt-0.5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <span>{{ site_email }}</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <svg class="w-4 h-4 flex-shrink-0 mt-0.5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Mon–Sat: 10am–6pm IST</span>
+          </li>
+        </ul>
+        <!-- Trust badges -->
+        <div class="flex flex-wrap gap-2 mt-5">
+          <span class="border border-white/20 px-2 py-1 text-xs text-gray-400">IGI Certified</span>
+          <span class="border border-white/20 px-2 py-1 text-xs text-gray-400">GIA Certified</span>
+          <span class="border border-white/20 px-2 py-1 text-xs text-gray-400">Free Shipping</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="border-t border-white/10 py-5">
+    <div class="max-w-screen-xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p class="text-xs text-gray-500">© 2026 {{ site_brand }}. All rights reserved.</p>
+      <div class="flex items-center gap-4">
+        <!-- Payment icons -->
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-gray-500 mr-1">We accept:</span>
+          <div class="flex gap-1.5">
+            <div class="bg-white/10 px-2 py-1 rounded text-xs text-gray-300 font-medium">VISA</div>
+            <div class="bg-white/10 px-2 py-1 rounded text-xs text-gray-300 font-medium">MC</div>
+            <div class="bg-white/10 px-2 py-1 rounded text-xs text-gray-300 font-medium">AMEX</div>
+            <div class="bg-white/10 px-2 py-1 rounded text-xs text-gray-300 font-medium">UPI</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

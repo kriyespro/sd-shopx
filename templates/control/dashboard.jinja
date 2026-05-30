@@ -1,0 +1,90 @@
+{% extends "control/base_control.jinja" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Store overview & live stats{% endblock %}
+
+{% block content %}
+
+<!-- Stats Grid -->
+<div id="stats-grid"
+     hx-get="{{ url('control:stats') }}"
+     hx-trigger="every 30s"
+     hx-swap="outerHTML">
+  {% include "control/partials/_stats_card.jinja" %}
+</div>
+
+<!-- Bottom Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+
+  <!-- Recent Orders -->
+  <div class="lg:col-span-2 ctrl-card p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-sm font-semibold text-gray-200">Recent Orders</h2>
+      <a href="{{ url('control:orders') }}" class="text-xs text-gold-400 hover:text-gold-500">View all →</a>
+    </div>
+    <table class="w-full text-xs">
+      <thead>
+        <tr class="text-gray-500 border-b border-gray-700">
+          <th class="text-left pb-2 font-medium">Order</th>
+          <th class="text-left pb-2 font-medium">Customer</th>
+          <th class="text-left pb-2 font-medium">Total</th>
+          <th class="text-left pb-2 font-medium">Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-800">
+        {% for order in recent_orders %}
+        <tr class="hover:bg-gray-800/30">
+          <td class="py-2.5">
+            <a href="{{ url('control:order_detail', pk=order.pk) }}" class="text-gold-400 hover:underline font-medium">#{{ order.order_number }}</a>
+          </td>
+          <td class="py-2.5 text-gray-300">{{ order.first_name }} {{ order.last_name }}</td>
+          <td class="py-2.5 text-gray-200">₹{{ order.total }}</td>
+          <td class="py-2.5">
+            {% set sc = {'pending': 'bg-yellow-900/50 text-yellow-300', 'confirmed': 'bg-blue-900/50 text-blue-300', 'shipped': 'bg-purple-900/50 text-purple-300', 'delivered': 'bg-green-900/50 text-green-300', 'cancelled': 'bg-red-900/50 text-red-300'} %}
+            <span class="badge {{ sc.get(order.status, 'bg-gray-700 text-gray-300') }}">{{ order.status }}</span>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="py-6 text-center text-gray-500">No orders yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Recent Signups + Activity -->
+  <div class="space-y-6">
+    <!-- Recent Users -->
+    <div class="ctrl-card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold text-gray-200">New Users</h2>
+        <a href="{{ url('control:users') }}" class="text-xs text-gold-400 hover:text-gold-500">View all →</a>
+      </div>
+      <div class="space-y-2.5">
+        {% for user in recent_users %}
+        <div class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full bg-navy-700 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+            {{ user.first_name[0] if user.first_name else user.username[0] }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-medium text-gray-200 truncate">{{ user.get_full_name() or user.username }}</p>
+            <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
+          </div>
+        </div>
+        {% else %}
+        <p class="text-xs text-gray-500">No users yet</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="ctrl-card p-5"
+         hx-get="{{ url('control:activity') }}"
+         hx-trigger="every 30s"
+         hx-swap="innerHTML">
+      {% include "control/partials/_activity_feed.jinja" %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

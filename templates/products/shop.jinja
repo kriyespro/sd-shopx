@@ -1,0 +1,48 @@
+{% extends "base.jinja" %}
+{% from 'components/product_card.jinja' import product_card %}
+
+{% block title %}Shop All — {{ site_brand }}{% endblock %}
+
+{% block content %}
+<div class="page-bg min-h-screen">
+  <div class="bg-white border-b border-gray-100 py-8 text-center">
+    <h1 class="font-serif text-4xl text-navy-800">Shop All Jewelry</h1>
+    <p class="text-sm text-gray-500 mt-2">{{ product_count }} products</p>
+  </div>
+
+  <div class="max-w-screen-xl mx-auto px-6 py-10">
+    <!-- Sort bar -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-2 overflow-x-auto pb-1">
+        {% for shape, label in [('', 'All'), ('round', 'Round'), ('oval', 'Oval'), ('pear', 'Pear'), ('emerald', 'Emerald'), ('cushion', 'Cushion'), ('marquise', 'Marquise')] %}
+        <a href="/shop/?shape={{ shape }}"
+           class="flex-shrink-0 px-3 py-1.5 text-xs font-medium border {% if selected_shape == shape or (not selected_shape and not shape) %}bg-navy-700 text-white border-navy-700{% else %}border-gray-200 text-gray-600 hover:border-navy-700 hover:text-navy-700{% endif %} transition-all">
+          {{ label }}
+        </a>
+        {% endfor %}
+      </div>
+      <form>
+        <select name="sort" onchange="this.form.submit()" class="border border-gray-200 text-sm px-3 py-2 outline-none bg-white text-gray-700 cursor-pointer">
+          <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+          <option value="az" {% if sort == 'az' %}selected{% endif %}>A–Z</option>
+          <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price ↑</option>
+          <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price ↓</option>
+        </select>
+      </form>
+    </div>
+
+    {% if products %}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+      {% for product in products %}
+      <div>{{ product_card(product) }}</div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-24">
+      <h2 class="font-serif text-2xl text-gray-400 mb-4">No products found</h2>
+      <a href="/shop/" class="btn-outline">View All Products &rarr;</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

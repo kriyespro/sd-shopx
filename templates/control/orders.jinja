@@ -1,0 +1,37 @@
+{% extends "control/base_control.jinja" %}
+
+{% block title %}Orders{% endblock %}
+{% block page_title %}Orders{% endblock %}
+{% block page_subtitle %}{{ orders|length }} orders{% endblock %}
+
+{% block content %}
+
+<!-- Status Filter -->
+<div class="flex flex-wrap gap-2 mb-4">
+  <a href="{{ url('control:orders') }}"
+     class="ctrl-btn {% if not status_filter %}ctrl-btn-gold{% else %}ctrl-btn-gray{% endif %} py-1.5 px-3">All</a>
+  {% for val, label in status_choices %}
+  <a href="{{ url('control:orders') }}?status={{ val }}"
+     class="ctrl-btn {% if status_filter == val %}ctrl-btn-gold{% else %}ctrl-btn-gray{% endif %} py-1.5 px-3">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<div class="ctrl-card overflow-hidden">
+  <table class="w-full text-xs">
+    <thead class="border-b border-gray-700">
+      <tr class="text-gray-500">
+        <th class="text-left px-4 py-3 font-medium">Order</th>
+        <th class="text-left px-4 py-3 font-medium">Customer</th>
+        <th class="text-left px-4 py-3 font-medium">Items</th>
+        <th class="text-left px-4 py-3 font-medium">Total</th>
+        <th class="text-left px-4 py-3 font-medium">Date</th>
+        <th class="text-left px-4 py-3 font-medium">Status</th>
+        <th class="text-left px-4 py-3 font-medium"></th>
+      </tr>
+    </thead>
+    <tbody id="order-rows" class="divide-y divide-gray-800">
+      {% include "control/partials/_order_rows.jinja" %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

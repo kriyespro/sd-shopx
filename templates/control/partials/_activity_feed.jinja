@@ -1,0 +1,14 @@
+<h2 class="text-sm font-semibold text-gray-200 mb-3">Activity Log</h2>
+<div class="space-y-2.5 max-h-52 overflow-y-auto">
+  {% for log in logs %}
+  <div class="flex items-start gap-2.5">
+    <div class="w-1.5 h-1.5 rounded-full bg-gold-400 mt-1.5 flex-shrink-0"></div>
+    <div>
+      <p class="text-xs text-gray-300">{{ log.description }}</p>
+      <p class="text-xs text-gray-600">{{ log.admin.username if log.admin else 'System' }} · {{ log.created_at.strftime('%b %d, %H:%M') }}</p>
+    </div>
+  </div>
+  {% else %}
+  <p class="text-xs text-gray-600">No activity yet</p>
+  {% endfor %}
+</div>

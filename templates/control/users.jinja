@@ -1,0 +1,36 @@
+{% extends "control/base_control.jinja" %}
+
+{% block title %}Users{% endblock %}
+{% block page_title %}Users{% endblock %}
+{% block page_subtitle %}{{ users|length }} total users{% endblock %}
+
+{% block content %}
+<!-- Search -->
+<div class="ctrl-card p-4 mb-4">
+  <input type="text" name="q" value="{{ q }}"
+         placeholder="Search by name or email..."
+         hx-get="{{ url('control:users') }}"
+         hx-target="#user-rows"
+         hx-trigger="keyup changed delay:300ms"
+         hx-include="[name='q']"
+         class="ctrl-input max-w-sm">
+</div>
+
+<!-- Table -->
+<div class="ctrl-card overflow-hidden">
+  <table class="w-full text-xs">
+    <thead class="border-b border-gray-700">
+      <tr class="text-gray-500">
+        <th class="text-left px-4 py-3 font-medium">User</th>
+        <th class="text-left px-4 py-3 font-medium">Email</th>
+        <th class="text-left px-4 py-3 font-medium">Joined</th>
+        <th class="text-left px-4 py-3 font-medium">Status</th>
+        <th class="text-left px-4 py-3 font-medium">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="user-rows" class="divide-y divide-gray-800">
+      {% include "control/partials/_user_rows.jinja" %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% if is_wishlisted %}
+<button hx-post="{{ url('users:wishlist_toggle', product_id=product.id) }}"
+        hx-target="this" hx-swap="outerHTML"
+        class="flex items-center gap-2 text-sm text-red-500 hover:text-red-600 transition-colors">
+  {{ csrf_input(request) }}
+  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/>
+  </svg>
+  <span>Wishlisted</span>
+</button>
+{% else %}
+<button hx-post="{{ url('users:wishlist_toggle', product_id=product.id) }}"
+        hx-target="this" hx-swap="outerHTML"
+        class="flex items-center gap-2 text-sm text-gray-500 hover:text-red-500 transition-colors">
+  {{ csrf_input(request) }}
+  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+  </svg>
+  <span>Add to Wishlist</span>
+</button>
+{% endif %}

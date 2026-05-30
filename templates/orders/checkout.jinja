@@ -1,0 +1,116 @@
+{% extends "base.jinja" %}
+
+{% block title %}Checkout — {{ site_brand }}{% endblock %}
+
+{% block content %}
+<div class="page-bg min-h-screen py-10">
+  <div class="max-w-screen-xl mx-auto px-6">
+    <h1 class="font-serif text-3xl text-navy-800 mb-8">Checkout</h1>
+
+    <form method="post" class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      {{ csrf_input(request) }}
+
+      <!-- LEFT: Address Form -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white border border-gray-100 p-6 shadow-sm">
+          <h2 class="font-serif text-xl text-navy-800 mb-5">Contact Information</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-medium tracking-wider uppercase text-gray-600 block mb-1">First Name *</label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.first_name.errors[0] }}</p>{% endif %}
+            </div>
+            <div>
+              <label class="text-xs font-medium tracking-wider uppercase text-gray-600 block mb-1">Last Name *</label>
+              {{ form.last_name }}
+            </div>
+            <div class="col-span-2">
+              <label class="text-xs font-medium tracking-wider uppercase text-gray-600 block mb-1">Email *</label>
+              {{ form.email }}
+            </div>
+            <div class="col-span-2">
+              <label class="text-xs font-medium tracking-wider uppercase text-gray-600 block mb-1">Phone</label>
+              {{ form.phone }}
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white border border-gray-100 p-6 shadow-sm">
+          <h2 class="font-serif text-xl text-navy-800 mb-5">Shipping Address</h2>
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs font-medium tracking-wider uppercase text-gray-600 block mb-1">Address *</label>
+              {{ form.address_line1 }}
+            </div>
+            <div>
+              <label class="text-xs font-medium tracking-wider uppercase text-gray-600 block mb-1">Address Line 2</label>
+              {{ form.address_line2 }}
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs font-medium tracking-wider uppercase text-gray-600 block mb-1">City *</label>
+                {{ form.city }}
+              </div>
+              <div>
+                <label class="text-xs font-medium tracking-wider uppercase text-gray-600 block mb-1">State *</label>
+                {{ form.state }}
+              </div>
+              <div>
+                <label class="text-xs font-medium tracking-wider uppercase text-gray-600 block mb-1">Country *</label>
+                {{ form.country }}
+              </div>
+              <div>
+                <label class="text-xs font-medium tracking-wider uppercase text-gray-600 block mb-1">PIN Code *</label>
+                {{ form.pincode }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Order Summary -->
+      <div class="bg-white border border-gray-100 p-6 h-fit shadow-sm">
+        <h2 class="font-serif text-xl text-navy-800 mb-5 pb-4 border-b border-gray-100">Order Summary</h2>
+
+        <div class="space-y-3 mb-5 max-h-60 overflow-y-auto">
+          {% for item in cart %}
+          {% if item.product is defined %}
+          <div class="flex gap-3 items-center">
+            <div class="relative flex-shrink-0">
+              <div class="w-14 h-14 bg-gray-100 overflow-hidden">
+                {% if item.product.primary_image %}
+                  <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
+                {% endif %}
+              </div>
+              <span class="absolute -top-1 -right-1 bg-navy-700 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{{ item.quantity }}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs tracking-wide uppercase text-gray-700 line-clamp-1">{{ item.name }}</p>
+              {% if item.metal %}<p class="text-xs text-gray-400">{{ item.metal.replace('_', ' ').title() }}</p>{% endif %}
+            </div>
+            <span class="text-sm font-medium text-gray-900">Rs. {{ "{:,.2f}".format(item.total_price) }}</span>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+
+        <div class="border-t border-gray-100 pt-4 space-y-2 mb-6">
+          <div class="flex justify-between text-sm text-gray-600">
+            <span>Subtotal</span><span>Rs. {{ "{:,.2f}".format(cart.get_total_price()) }}</span>
+          </div>
+          <div class="flex justify-between text-sm text-gray-600">
+            <span>Shipping</span><span class="text-green-600">Free</span>
+          </div>
+          <div class="flex justify-between font-medium text-gray-900 text-base border-t border-gray-100 pt-2 mt-2">
+            <span>Total</span>
+            <span class="font-serif text-xl">Rs. {{ "{:,.2f}".format(cart.get_total_price()) }}</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-navy w-full py-4">Place Order &rarr;</button>
+        <p class="text-xs text-gray-400 text-center mt-3">Your order is covered by our 30-day return policy.</p>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

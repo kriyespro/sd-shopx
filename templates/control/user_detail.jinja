@@ -1,0 +1,85 @@
+{% extends "control/base_control.jinja" %}
+
+{% block title %}User — {{ target_user.get_full_name() or target_user.username }}{% endblock %}
+{% block page_title %}User Detail{% endblock %}
+{% block page_subtitle %}{{ target_user.email }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url('control:users') }}" class="ctrl-btn ctrl-btn-gray">← Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <!-- Profile -->
+  <div class="ctrl-card p-6">
+    <div class="flex flex-col items-center text-center mb-5">
+      <div class="w-16 h-16 rounded-full bg-navy-700 flex items-center justify-center text-2xl font-bold text-white mb-3">
+        {{ target_user.first_name[0] if target_user.first_name else target_user.username[0] }}
+      </div>
+      <h2 class="text-base font-semibold text-white">{{ target_user.get_full_name() or target_user.username }}</h2>
+      <p class="text-xs text-gray-500 mt-0.5">{{ target_user.email }}</p>
+      <div class="flex gap-2 mt-2">
+        {% if target_user.is_active %}
+          <span class="badge bg-green-900/40 text-green-400">Active</span>
+        {% else %}
+          <span class="badge bg-red-900/40 text-red-400">Banned</span>
+        {% endif %}
+        {% if target_user.is_staff %}<span class="badge bg-gold-500/20 text-gold-400">Staff</span>{% endif %}
+      </div>
+    </div>
+    <div class="text-xs space-y-2 text-gray-400">
+      <div class="flex justify-between"><span>Joined</span><span class="text-gray-200">{{ target_user.date_joined.strftime('%b %d, %Y') }}</span></div>
+      <div class="flex justify-between"><span>Last Login</span><span class="text-gray-200">{{ target_user.last_login.strftime('%b %d, %Y') if target_user.last_login else 'Never' }}</span></div>
+      <div class="flex justify-between"><span>Orders</span><span class="text-gray-200">{{ orders|length }}</span></div>
+    </div>
+    {% if not target_user.is_superuser %}
+    <div class="mt-5 pt-4 border-t border-gray-700">
+      {% if target_user.is_active %}
+      <form method="post" action="{{ url('control:ban_user', pk=target_user.pk) }}" onsubmit="return confirm('Ban this user?')">
+        {{ csrf_input(request) }}
+        <button type="submit" class="ctrl-btn ctrl-btn-red w-full justify-center">Ban User</button>
+      </form>
+      {% else %}
+      <form method="post" action="{{ url('control:unban_user', pk=target_user.pk) }}">
+        {{ csrf_input(request) }}
+        <button type="submit" class="ctrl-btn ctrl-btn-gray w-full justify-center text-green-400">Unban User</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Orders -->
+  <div class="lg:col-span-2 ctrl-card p-5">
+    <h3 class="text-sm font-semibold text-gray-200 mb-4">Order History</h3>
+    {% if orders %}
+    <table class="w-full text-xs">
+      <thead class="border-b border-gray-700">
+        <tr class="text-gray-500">
+          <th class="text-left pb-2 font-medium">Order #</th>
+          <th class="text-left pb-2 font-medium">Date</th>
+          <th class="text-left pb-2 font-medium">Total</th>
+          <th class="text-left pb-2 font-medium">Status</th>
+          <th class="text-left pb-2 font-medium"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-800">
+        {% for order in orders %}
+        <tr class="hover:bg-gray-800/30">
+          <td class="py-2.5 font-medium text-gold-400">{{ order.order_number }}</td>
+          <td class="py-2.5 text-gray-400">{{ order.created_at.strftime('%b %d, %Y') }}</td>
+          <td class="py-2.5 text-gray-200">₹{{ order.total }}</td>
+          <td class="py-2.5"><span class="badge bg-gray-700 text-gray-300">{{ order.status }}</span></td>
+          <td class="py-2.5"><a href="{{ url('control:order_detail', pk=order.pk) }}" class="text-gold-400 hover:underline">View →</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-xs text-gray-500">No orders placed yet.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

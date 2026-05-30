@@ -1,0 +1,17 @@
+# Test Users for Development
+
+## Admin / Superuser
+- **URL**: http://127.0.0.1:8000/sd/
+- **Username**: admin
+- **Password**: Admin@1234
+
+## Test Users
+### User 1
+- **Email (username)**: test@mnxstore.com
+- **Password**: Test@1234
+- **Name**: Priya Sharma
+
+### User 2
+- **Email (username)**: demo@mnxstore.com
+- **Password**: Demo@1234
+- **Name**: James Mitchell

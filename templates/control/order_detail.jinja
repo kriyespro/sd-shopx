@@ -1,0 +1,112 @@
+{% extends "control/base_control.jinja" %}
+
+{% block title %}Order #{{ order.order_number }}{% endblock %}
+{% block page_title %}Order #{{ order.order_number }}{% endblock %}
+{% block page_subtitle %}{{ order.created_at.strftime('%B %d, %Y at %H:%M') }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url('control:orders') }}" class="ctrl-btn ctrl-btn-gray">← Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <!-- Order Items -->
+  <div class="lg:col-span-2 space-y-4">
+    <div class="ctrl-card p-5">
+      <h3 class="text-sm font-semibold text-gray-200 mb-4">Items</h3>
+      <table class="w-full text-xs">
+        <thead class="border-b border-gray-700">
+          <tr class="text-gray-500">
+            <th class="text-left pb-2 font-medium">Product</th>
+            <th class="text-left pb-2 font-medium">Metal / Size</th>
+            <th class="text-left pb-2 font-medium">Price</th>
+            <th class="text-left pb-2 font-medium">Qty</th>
+            <th class="text-right pb-2 font-medium">Total</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-800">
+          {% for item in order.items.all() %}
+          <tr>
+            <td class="py-2.5 text-gray-300">{{ item.product_name }}</td>
+            <td class="py-2.5 text-gray-500">{{ item.metal_type or '—' }} {{ item.ring_size or '' }}</td>
+            <td class="py-2.5 text-gray-300">₹{{ item.price }}</td>
+            <td class="py-2.5 text-gray-400">{{ item.quantity }}</td>
+            <td class="py-2.5 text-gray-200 text-right font-medium">₹{{ item.total_price }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot class="border-t border-gray-700">
+          <tr>
+            <td colspan="4" class="pt-3 text-right text-xs text-gray-500">Subtotal</td>
+            <td class="pt-3 text-right text-gray-300">₹{{ order.subtotal }}</td>
+          </tr>
+          <tr>
+            <td colspan="4" class="pt-1 text-right text-xs text-gray-500">Shipping</td>
+            <td class="pt-1 text-right text-gray-300">₹{{ order.shipping_cost }}</td>
+          </tr>
+          <tr>
+            <td colspan="4" class="pt-2 text-right text-sm font-semibold text-gray-200">Total</td>
+            <td class="pt-2 text-right text-base font-bold text-white">₹{{ order.total }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Shipping Address -->
+    <div class="ctrl-card p-5">
+      <h3 class="text-sm font-semibold text-gray-200 mb-3">Shipping Address</h3>
+      <div class="text-xs text-gray-400 space-y-1">
+        <p class="text-gray-200 font-medium">{{ order.first_name }} {{ order.last_name }}</p>
+        <p>{{ order.email }}</p>
+        {% if order.phone %}<p>{{ order.phone }}</p>{% endif %}
+        <p>{{ order.address_line1 }}{% if order.address_line2 %}, {{ order.address_line2 }}{% endif %}</p>
+        <p>{{ order.city }}, {{ order.state }} {{ order.pincode }}</p>
+        <p>{{ order.country }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Update -->
+  <div class="space-y-4">
+    <div class="ctrl-card p-5">
+      {% set sc = {'pending': 'bg-yellow-900/50 text-yellow-300', 'confirmed': 'bg-blue-900/50 text-blue-300', 'processing': 'bg-purple-900/50 text-purple-300', 'shipped': 'bg-indigo-900/50 text-indigo-300', 'delivered': 'bg-green-900/50 text-green-300', 'cancelled': 'bg-red-900/50 text-red-300', 'refunded': 'bg-gray-700 text-gray-400'} %}
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-semibold text-gray-200">Order Status</h3>
+        <span class="badge {{ sc.get(order.status, 'bg-gray-700 text-gray-300') }} text-xs">{{ order.status }}</span>
+      </div>
+      <form method="post" class="space-y-4">
+        {{ csrf_input(request) }}
+        <div>
+          <label class="ctrl-label">Update Status</label>
+          {{ form.status }}
+        </div>
+        <div>
+          <label class="ctrl-label">Notes</label>
+          {{ form.notes }}
+        </div>
+        <button type="submit" class="ctrl-btn ctrl-btn-gold w-full justify-center">Update Order</button>
+      </form>
+    </div>
+
+    <!-- Customer Info -->
+    <div class="ctrl-card p-5">
+      <h3 class="text-sm font-semibold text-gray-200 mb-3">Customer</h3>
+      {% if order.user %}
+      <a href="{{ url('control:user_detail', pk=order.user.pk) }}" class="flex items-center gap-3 hover:bg-gray-800/30 rounded p-1 -m-1 transition-colors">
+        <div class="w-8 h-8 rounded-full bg-navy-700 flex items-center justify-center text-xs font-bold text-white">
+          {{ order.user.first_name[0] if order.user.first_name else order.user.username[0] }}
+        </div>
+        <div>
+          <p class="text-xs font-medium text-gray-200">{{ order.user.get_full_name() or order.user.username }}</p>
+          <p class="text-xs text-gold-400">View profile →</p>
+        </div>
+      </a>
+      {% else %}
+      <p class="text-xs text-gray-500">Guest order — {{ order.email }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
