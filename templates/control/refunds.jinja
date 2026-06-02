@@ -1,0 +1,73 @@
+{% extends "control/base_control.jinja" %}
+{% block title %}Refunds{% endblock %}
+{% block page_title %}Refund Tracker{% endblock %}
+{% block page_subtitle %}{{ pending_count }} refund(s) awaiting action{% endblock %}
+
+{% block content %}
+{% set status_colors = {
+  'requested':  'bg-yellow-900/50 text-yellow-300',
+  'approved':   'bg-blue-900/50 text-blue-300',
+  'processing': 'bg-purple-900/50 text-purple-300',
+  'processed':  'bg-green-900/50 text-green-300',
+  'rejected':   'bg-red-900/50 text-red-300',
+} %}
+
+<!-- Filters -->
+<div class="flex flex-wrap gap-3 mb-4">
+  <form hx-get="{{ url('control:refunds') }}" hx-target="#refund-table" hx-push-url="true" class="flex gap-2">
+    <input name="q" value="{{ q }}" placeholder="Order # or email…" class="ctrl-input w-56">
+    <select name="status" class="ctrl-select w-44" onchange="this.form.requestSubmit()">
+      <option value="">All Statuses</option>
+      {% for val, label in status_choices %}
+      <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button class="ctrl-btn ctrl-btn-gray">Filter</button>
+  </form>
+</div>
+
+<div class="ctrl-card overflow-hidden" id="refund-table">
+  <table class="w-full text-sm">
+    <thead class="border-b border-gray-800">
+      <tr class="text-left text-xs text-gray-500 uppercase tracking-wider">
+        <th class="px-4 py-3">Refund #</th>
+        <th class="px-4 py-3">Order</th>
+        <th class="px-4 py-3">Customer</th>
+        <th class="px-4 py-3">Reason</th>
+        <th class="px-4 py-3 text-right">Amount</th>
+        <th class="px-4 py-3">Status</th>
+        <th class="px-4 py-3">Requested</th>
+        <th class="px-4 py-3">Processed By</th>
+        <th class="px-4 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-800/60">
+      {% for refund in refunds %}
+      <tr class="hover:bg-white/5 transition-colors">
+        <td class="px-4 py-3 text-gray-400 font-mono text-xs">#{{ refund.id }}</td>
+        <td class="px-4 py-3">
+          <a href="{{ url('control:order_detail', pk=refund.order.pk) }}"
+             class="text-gold-400 hover:underline">#{{ refund.order.order_number }}</a>
+        </td>
+        <td class="px-4 py-3 text-gray-300 text-xs">{{ refund.order.email }}</td>
+        <td class="px-4 py-3 text-gray-400 text-xs max-w-[160px] truncate">{{ refund.reason[:60] ~ '…' if refund.reason|length > 60 else refund.reason }}</td>
+        <td class="px-4 py-3 text-right font-semibold text-white">₹{{ refund.amount }}</td>
+        <td class="px-4 py-3">
+          <span class="badge {{ status_colors.get(refund.status, 'bg-gray-700 text-gray-300') }} text-[10px]">
+            {{ refund.get_status_display() }}
+          </span>
+        </td>
+        <td class="px-4 py-3 text-gray-500 text-xs">{{ refund.requested_at.strftime('%d %b %Y') }}</td>
+        <td class="px-4 py-3 text-gray-500 text-xs">{{ refund.processed_by.email if refund.processed_by else '—' }}</td>
+        <td class="px-4 py-3 text-right">
+          <a href="{{ url('control:refund_detail', pk=refund.pk) }}"
+             class="ctrl-btn ctrl-btn-gold text-xs">Manage</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="9" class="px-4 py-12 text-center text-gray-500">No refunds found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

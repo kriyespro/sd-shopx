@@ -1,0 +1,28 @@
+{% set status_colors = {
+  'requested':  'bg-yellow-900/50 text-yellow-300',
+  'approved':   'bg-blue-900/50 text-blue-300',
+  'processing': 'bg-purple-900/50 text-purple-300',
+  'processed':  'bg-green-900/50 text-green-300',
+  'rejected':   'bg-red-900/50 text-red-300',
+} %}
+{% for refund in refunds %}
+<tr class="hover:bg-white/5 transition-colors">
+  <td class="px-4 py-3 text-gray-400 font-mono text-xs">#{{ refund.id }}</td>
+  <td class="px-4 py-3">
+    <a href="{{ url('control:order_detail', pk=refund.order.pk) }}" class="text-gold-400 hover:underline">#{{ refund.order.order_number }}</a>
+  </td>
+  <td class="px-4 py-3 text-gray-300 text-xs">{{ refund.order.email }}</td>
+  <td class="px-4 py-3 text-gray-400 text-xs">{{ refund.reason[:60] ~ '…' if refund.reason|length > 60 else refund.reason }}</td>
+  <td class="px-4 py-3 text-right font-semibold text-white">₹{{ refund.amount }}</td>
+  <td class="px-4 py-3">
+    <span class="badge {{ status_colors.get(refund.status, 'bg-gray-700 text-gray-300') }} text-[10px]">{{ refund.get_status_display() }}</span>
+  </td>
+  <td class="px-4 py-3 text-gray-500 text-xs">{{ refund.requested_at.strftime('%d %b %Y') }}</td>
+  <td class="px-4 py-3 text-gray-500 text-xs">{{ refund.processed_by.email if refund.processed_by else '—' }}</td>
+  <td class="px-4 py-3 text-right">
+    <a href="{{ url('control:refund_detail', pk=refund.pk) }}" class="ctrl-btn ctrl-btn-gold text-xs">Manage</a>
+  </td>
+</tr>
+{% else %}
+<tr><td colspan="9" class="px-4 py-12 text-center text-gray-500">No refunds found.</td></tr>
+{% endfor %}

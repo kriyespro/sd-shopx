@@ -1,0 +1,112 @@
+{% extends "control/base_control.jinja" %}
+{% block title %}Customer — {{ target_user.get_full_name() or target_user.email }}{% endblock %}
+{% block page_title %}{{ target_user.get_full_name() or target_user.email }}{% endblock %}
+{% block page_subtitle %}Customer profile &amp; order history{% endblock %}
+
+{% block topbar_actions %}
+  {% if target_user.is_active %}
+    <form method="post" action="{{ url('control:ban_user', pk=target_user.pk) }}">
+      {{ csrf_input }}
+      <button class="ctrl-btn ctrl-btn-red text-xs">Ban Customer</button>
+    </form>
+  {% else %}
+    <form method="post" action="{{ url('control:unban_user', pk=target_user.pk) }}">
+      {{ csrf_input }}
+      <button class="ctrl-btn ctrl-btn-gray text-xs">Unban Customer</button>
+    </form>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <!-- Left: Profile + Stats -->
+  <div class="space-y-4">
+    <div class="ctrl-card p-5">
+      <div class="flex items-center gap-4 mb-4">
+        <div class="w-14 h-14 rounded-full bg-navy-700 flex items-center justify-center text-xl font-bold text-white">
+          {{ (target_user.first_name[0] if target_user.first_name else target_user.email[0]).upper() }}
+        </div>
+        <div>
+          <p class="font-semibold text-white">{{ target_user.get_full_name() or target_user.username }}</p>
+          <p class="text-sm text-gray-400">{{ target_user.email }}</p>
+          {% if not target_user.is_active %}
+          <span class="badge bg-red-900/60 text-red-400 mt-1">Banned</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="space-y-2 text-sm">
+        {% if target_user.profile %}
+        <div class="flex justify-between"><span class="text-gray-500">Phone</span><span class="text-gray-300">{{ target_user.profile.phone or '—' }}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">City</span><span class="text-gray-300">{{ target_user.profile.city or '—' }}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Country</span><span class="text-gray-300">{{ target_user.profile.country }}</span></div>
+        {% endif %}
+        <div class="flex justify-between"><span class="text-gray-500">Joined</span><span class="text-gray-300">{{ target_user.date_joined.strftime('%d %b %Y') }}</span></div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="ctrl-card p-5">
+      <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Lifetime Stats</h3>
+      <div class="space-y-3">
+        <div class="flex justify-between"><span class="text-gray-400 text-sm">Total Orders</span><span class="text-white font-semibold">{{ cstats.total_orders }}</span></div>
+        <div class="flex justify-between"><span class="text-gray-400 text-sm">Lifetime Value</span><span class="text-gold-400 font-semibold">₹{{ "%.0f"|format(cstats.lifetime_value) }}</span></div>
+        <div class="flex justify-between"><span class="text-gray-400 text-sm">Avg Order</span><span class="text-gray-300">₹{{ "%.0f"|format(cstats.avg_order_value) }}</span></div>
+        <div class="flex justify-between"><span class="text-gray-400 text-sm">Cancelled</span><span class="text-red-400">{{ cstats.cancelled }}</span></div>
+        <div class="flex justify-between"><span class="text-gray-400 text-sm">Refunded</span><span class="text-yellow-400">{{ cstats.refunded }}</span></div>
+      </div>
+    </div>
+
+    <!-- Wishlist -->
+    {% if wishlist %}
+    <div class="ctrl-card p-5">
+      <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Wishlist ({{ wishlist|length }})</h3>
+      <ul class="space-y-2">
+        {% for w in wishlist %}
+        <li class="text-sm text-gray-300 flex justify-between">
+          <span class="truncate">{{ w.product.name }}</span>
+          <span class="text-gold-400 ml-2">₹{{ w.product.price }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Right: Orders -->
+  <div class="lg:col-span-2 space-y-3">
+    <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Order History</h3>
+    {% for order in orders %}
+    {% set status_colors = {
+      'pending': 'bg-yellow-900/50 text-yellow-300',
+      'confirmed': 'bg-blue-900/50 text-blue-300',
+      'processing': 'bg-purple-900/50 text-purple-300',
+      'shipped': 'bg-cyan-900/50 text-cyan-300',
+      'delivered': 'bg-green-900/50 text-green-300',
+      'cancelled': 'bg-red-900/50 text-red-300',
+      'refunded': 'bg-gray-700 text-gray-300',
+    } %}
+    <div class="ctrl-card p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-3">
+          <a href="{{ url('control:order_detail', pk=order.pk) }}"
+             class="text-gold-400 font-semibold text-sm hover:underline">#{{ order.order_number }}</a>
+          <span class="badge {{ status_colors.get(order.status, 'bg-gray-700 text-gray-300') }} text-[10px]">
+            {{ order.get_status_display() }}
+          </span>
+        </div>
+        <div class="text-right">
+          <p class="text-white font-semibold">₹{{ order.total }}</p>
+          <p class="text-xs text-gray-500">{{ order.created_at.strftime('%d %b %Y') }}</p>
+        </div>
+      </div>
+      <div class="text-xs text-gray-500">
+        {{ order.items.count() }} item(s) — {{ order.city }}, {{ order.country }}
+      </div>
+    </div>
+    {% else %}
+    <div class="ctrl-card p-8 text-center text-gray-500">No orders yet.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

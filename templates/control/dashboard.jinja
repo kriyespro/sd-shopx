@@ -7,12 +7,7 @@
 {% block content %}
 
 <!-- Stats Grid -->
-<div id="stats-grid"
-     hx-get="{{ url('control:stats') }}"
-     hx-trigger="every 30s"
-     hx-swap="outerHTML">
-  {% include "control/partials/_stats_card.jinja" %}
-</div>
+{% include "control/partials/_stats_card.jinja" %}
 
 <!-- Bottom Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
@@ -58,7 +53,7 @@
     <div class="ctrl-card p-5">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-sm font-semibold text-gray-200">New Users</h2>
-        <a href="{{ url('control:users') }}" class="text-xs text-gold-400 hover:text-gold-500">View all →</a>
+        <a href="{{ url('control:customers') }}" class="text-xs text-gold-400 hover:text-gold-500">View all →</a>
       </div>
       <div class="space-y-2.5">
         {% for user in recent_users %}

@@ -1,6 +1,6 @@
 from django import forms
 from products.models import Product, Category, ProductImage
-from orders.models import Order
+from orders.models import Order, Payment, Refund
 
 
 class ProductForm(forms.ModelForm):
@@ -56,4 +56,41 @@ class OrderStatusForm(forms.ModelForm):
         widgets = {
             'status': forms.Select(attrs={'class': 'ctrl-select'}),
             'notes': forms.Textarea(attrs={'class': 'ctrl-input', 'rows': 3}),
+        }
+
+
+class PaymentForm(forms.ModelForm):
+    class Meta:
+        model = Payment
+        fields = ['method', 'status', 'amount', 'transaction_id', 'gateway', 'paid_at']
+        widgets = {
+            'method': forms.Select(attrs={'class': 'ctrl-select'}),
+            'status': forms.Select(attrs={'class': 'ctrl-select'}),
+            'amount': forms.NumberInput(attrs={'class': 'ctrl-input'}),
+            'transaction_id': forms.TextInput(attrs={'class': 'ctrl-input'}),
+            'gateway': forms.TextInput(attrs={'class': 'ctrl-input'}),
+            'paid_at': forms.DateTimeInput(attrs={'class': 'ctrl-input', 'type': 'datetime-local'}),
+        }
+
+
+class RefundForm(forms.ModelForm):
+    class Meta:
+        model = Refund
+        fields = ['amount', 'reason', 'notes']
+        widgets = {
+            'amount': forms.NumberInput(attrs={'class': 'ctrl-input'}),
+            'reason': forms.Textarea(attrs={'class': 'ctrl-input', 'rows': 3}),
+            'notes': forms.Textarea(attrs={'class': 'ctrl-input', 'rows': 2}),
+        }
+
+
+class RefundStatusForm(forms.ModelForm):
+    class Meta:
+        model = Refund
+        fields = ['status', 'transaction_id', 'notes', 'processed_at']
+        widgets = {
+            'status': forms.Select(attrs={'class': 'ctrl-select'}),
+            'transaction_id': forms.TextInput(attrs={'class': 'ctrl-input'}),
+            'notes': forms.Textarea(attrs={'class': 'ctrl-input', 'rows': 2}),
+            'processed_at': forms.DateTimeInput(attrs={'class': 'ctrl-input', 'type': 'datetime-local'}),
         }

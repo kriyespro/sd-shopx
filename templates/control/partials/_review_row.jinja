@@ -1,0 +1,36 @@
+<tr class="hover:bg-white/5 transition-colors" id="review-{{ review.pk }}">
+  <td class="px-4 py-3">
+    <span class="text-gray-200 text-sm">{{ review.product.name[:40] ~ '…' if review.product.name|length > 40 else review.product.name }}</span>
+  </td>
+  <td class="px-4 py-3 text-gray-400 text-xs">{{ review.user.email }}</td>
+  <td class="px-4 py-3 text-gold-400">{% for _ in range(review.rating) %}★{% endfor %}</td>
+  <td class="px-4 py-3 text-gray-400 text-xs max-w-[200px] truncate">
+    {% if review.title %}<strong class="text-gray-300">{{ review.title }}</strong> — {% endif %}{{ review.body[:80] ~ '…' if review.body|length > 80 else review.body }}
+  </td>
+  <td class="px-4 py-3">
+    {% if review.is_approved %}
+    <span class="badge bg-green-900/50 text-green-300 text-[10px]">Approved</span>
+    {% else %}
+    <span class="badge bg-yellow-900/50 text-yellow-300 text-[10px]">Pending</span>
+    {% endif %}
+  </td>
+  <td class="px-4 py-3 text-gray-500 text-xs">{{ review.created_at.strftime('%d %b %Y') }}</td>
+  <td class="px-4 py-3 text-right">
+    <div class="flex items-center justify-end gap-2">
+      <form method="post" action="{{ url('control:review_toggle', pk=review.pk) }}"
+            hx-post="{{ url('control:review_toggle', pk=review.pk) }}"
+            hx-target="#review-{{ review.pk }}"
+            hx-swap="outerHTML">
+        {{ csrf_input }}
+        <button class="ctrl-btn {% if review.is_approved %}ctrl-btn-gray{% else %}ctrl-btn-gold{% endif %} text-xs">
+          {% if review.is_approved %}Reject{% else %}Approve{% endif %}
+        </button>
+      </form>
+      <form method="post" action="{{ url('control:review_delete', pk=review.pk) }}">
+        {{ csrf_input }}
+        <button class="ctrl-btn ctrl-btn-red text-xs"
+                onclick="return confirm('Delete this review?')">Delete</button>
+      </form>
+    </div>
+  </td>
+</tr>

@@ -1,0 +1,73 @@
+{% extends "control/base_control.jinja" %}
+{% block title %}Payments{% endblock %}
+{% block page_title %}Payments{% endblock %}
+{% block page_subtitle %}All payment transactions{% endblock %}
+
+{% block content %}
+{% set status_colors = {
+  'pending':            'bg-yellow-900/50 text-yellow-300',
+  'paid':               'bg-green-900/50 text-green-300',
+  'failed':             'bg-red-900/50 text-red-300',
+  'refunded':           'bg-gray-700 text-gray-300',
+  'partially_refunded': 'bg-orange-900/50 text-orange-300',
+} %}
+
+<!-- Filters -->
+<div class="flex flex-wrap gap-3 mb-4">
+  <form hx-get="{{ url('control:payments') }}" hx-target="#payment-table" hx-push-url="true" class="flex gap-2">
+    <input name="q" value="{{ q }}" placeholder="Order # or email…" class="ctrl-input w-56">
+    <select name="status" class="ctrl-select w-44" onchange="this.form.requestSubmit()">
+      <option value="">All Statuses</option>
+      {% for val, label in status_choices %}
+      <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button class="ctrl-btn ctrl-btn-gray">Filter</button>
+  </form>
+</div>
+
+<div class="ctrl-card overflow-hidden" id="payment-table">
+  <table class="w-full text-sm">
+    <thead class="border-b border-gray-800">
+      <tr class="text-left text-xs text-gray-500 uppercase tracking-wider">
+        <th class="px-4 py-3">Order</th>
+        <th class="px-4 py-3">Customer</th>
+        <th class="px-4 py-3">Method</th>
+        <th class="px-4 py-3">Gateway</th>
+        <th class="px-4 py-3">Transaction ID</th>
+        <th class="px-4 py-3 text-right">Amount</th>
+        <th class="px-4 py-3">Status</th>
+        <th class="px-4 py-3">Date</th>
+        <th class="px-4 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-800/60">
+      {% for payment in payments %}
+      <tr class="hover:bg-white/5 transition-colors">
+        <td class="px-4 py-3">
+          <a href="{{ url('control:order_detail', pk=payment.order.pk) }}"
+             class="text-gold-400 hover:underline font-medium">#{{ payment.order.order_number }}</a>
+        </td>
+        <td class="px-4 py-3 text-gray-300">{{ payment.order.email }}</td>
+        <td class="px-4 py-3 text-gray-400">{{ payment.get_method_display() }}</td>
+        <td class="px-4 py-3 text-gray-500 text-xs">{{ payment.gateway or '—' }}</td>
+        <td class="px-4 py-3 text-gray-500 text-xs font-mono">{{ payment.transaction_id[:20] ~ '…' if payment.transaction_id|length > 20 else payment.transaction_id or '—' }}</td>
+        <td class="px-4 py-3 text-right font-semibold text-white">₹{{ payment.amount }}</td>
+        <td class="px-4 py-3">
+          <span class="badge {{ status_colors.get(payment.status, 'bg-gray-700 text-gray-300') }} text-[10px]">
+            {{ payment.get_status_display() }}
+          </span>
+        </td>
+        <td class="px-4 py-3 text-gray-500 text-xs">{{ payment.created_at.strftime('%d %b %Y') }}</td>
+        <td class="px-4 py-3 text-right">
+          <a href="{{ url('control:order_detail', pk=payment.order.pk) }}"
+             class="ctrl-btn ctrl-btn-gray text-xs">Order →</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="9" class="px-4 py-12 text-center text-gray-500">No payments found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

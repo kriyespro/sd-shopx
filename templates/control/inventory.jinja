@@ -1,0 +1,103 @@
+{% extends "control/base_control.jinja" %}
+{% block title %}Inventory{% endblock %}
+{% block page_title %}Inventory{% endblock %}
+{% block page_subtitle %}Stock levels &amp; product status{% endblock %}
+
+{% block topbar_actions %}
+  <a href="?low={% if low_only %}0{% else %}1{% endif %}"
+     class="ctrl-btn {% if low_only %}ctrl-btn-red{% else %}ctrl-btn-gray{% endif %} text-xs">
+    {% if low_only %}Show All{% else %}⚠ Low Stock Only{% endif %}
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="ctrl-card overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="border-b border-gray-800">
+      <tr class="text-left text-xs text-gray-500 uppercase tracking-wider">
+        <th class="px-4 py-3">Product</th>
+        <th class="px-4 py-3">Category</th>
+        <th class="px-4 py-3">Price</th>
+        <th class="px-4 py-3 text-center">Stock</th>
+        <th class="px-4 py-3 text-center">Active</th>
+        <th class="px-4 py-3 text-center">Featured</th>
+        <th class="px-4 py-3 text-center">New Arrival</th>
+        <th class="px-4 py-3 text-center">Update Stock</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-800/60">
+      {% for product in products %}
+      <tr class="hover:bg-white/5 transition-colors {% if product.stock <= 2 %}bg-red-950/20{% elif product.stock <= 5 %}bg-yellow-950/20{% endif %}">
+        <td class="px-4 py-3">
+          <a href="{{ url('control:product_edit', pk=product.pk) }}"
+             class="text-gray-200 hover:text-gold-400 transition-colors font-medium text-sm">{{ product.name[:50] ~ '…' if product.name|length > 50 else product.name }}</a>
+        </td>
+        <td class="px-4 py-3 text-gray-500 text-xs">{{ product.category.name }}</td>
+        <td class="px-4 py-3 text-gray-300">₹{{ product.price }}</td>
+        <td class="px-4 py-3 text-center" id="stock-{{ product.pk }}">
+          <span class="font-semibold {% if product.stock <= 2 %}text-red-400{% elif product.stock <= 5 %}text-yellow-400{% else %}text-green-400{% endif %}">
+            {{ product.stock }}
+          </span>
+        </td>
+        <!-- Status toggles via HTMX -->
+        <td class="px-4 py-3 text-center">
+          <form method="post" action="{{ url('control:product_toggle', pk=product.pk) }}"
+                hx-post="{{ url('control:product_toggle', pk=product.pk) }}"
+                hx-target="#toggle-active-{{ product.pk }}"
+                hx-swap="outerHTML">
+            {{ csrf_input }}
+            <input type="hidden" name="field" value="is_active">
+            <button id="toggle-active-{{ product.pk }}" type="submit"
+                    class="w-10 h-5 rounded-full transition-colors {% if product.is_active %}bg-green-500{% else %}bg-gray-600{% endif %} relative focus:outline-none">
+              <span class="block w-4 h-4 rounded-full bg-white absolute top-0.5 transition-transform {% if product.is_active %}translate-x-5{% else %}translate-x-0.5{% endif %}"></span>
+            </button>
+          </form>
+        </td>
+        <td class="px-4 py-3 text-center">
+          <form method="post" action="{{ url('control:product_toggle', pk=product.pk) }}"
+                hx-post="{{ url('control:product_toggle', pk=product.pk) }}"
+                hx-target="#toggle-featured-{{ product.pk }}"
+                hx-swap="outerHTML">
+            {{ csrf_input }}
+            <input type="hidden" name="field" value="is_featured">
+            <button id="toggle-featured-{{ product.pk }}" type="submit"
+                    class="w-10 h-5 rounded-full transition-colors {% if product.is_featured %}bg-gold-500{% else %}bg-gray-600{% endif %} relative focus:outline-none">
+              <span class="block w-4 h-4 rounded-full bg-white absolute top-0.5 transition-transform {% if product.is_featured %}translate-x-5{% else %}translate-x-0.5{% endif %}"></span>
+            </button>
+          </form>
+        </td>
+        <td class="px-4 py-3 text-center">
+          <form method="post" action="{{ url('control:product_toggle', pk=product.pk) }}"
+                hx-post="{{ url('control:product_toggle', pk=product.pk) }}"
+                hx-target="#toggle-new-{{ product.pk }}"
+                hx-swap="outerHTML">
+            {{ csrf_input }}
+            <input type="hidden" name="field" value="is_new_arrival">
+            <button id="toggle-new-{{ product.pk }}" type="submit"
+                    class="w-10 h-5 rounded-full transition-colors {% if product.is_new_arrival %}bg-blue-500{% else %}bg-gray-600{% endif %} relative focus:outline-none">
+              <span class="block w-4 h-4 rounded-full bg-white absolute top-0.5 transition-transform {% if product.is_new_arrival %}translate-x-5{% else %}translate-x-0.5{% endif %}"></span>
+            </button>
+          </form>
+        </td>
+        <!-- Stock update -->
+        <td class="px-4 py-3 text-center">
+          <form method="post" action="{{ url('control:inventory') }}"
+                hx-post="{{ url('control:inventory') }}"
+                hx-target="#stock-{{ product.pk }}"
+                hx-swap="innerHTML"
+                class="flex items-center gap-1 justify-center">
+            {{ csrf_input }}
+            <input type="hidden" name="product_id" value="{{ product.pk }}">
+            <input type="number" name="stock" value="{{ product.stock }}" min="0"
+                   class="w-16 text-center text-xs bg-gray-800 border border-gray-700 rounded px-1 py-1 text-white">
+            <button class="ctrl-btn ctrl-btn-gray text-xs px-2 py-1">Set</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8" class="px-4 py-12 text-center text-gray-500">No products found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

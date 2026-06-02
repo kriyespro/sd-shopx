@@ -1,9 +1,12 @@
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="stats-grid"
+     hx-get="{{ url('control:stats') }}"
+     hx-trigger="every 30s"
+     hx-swap="outerHTML">
   {% for label, value, icon_path, color in [
-    ('Total Revenue', '₹' ~ stats.revenue_total|int, 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'text-gold-400'),
-    ('Total Orders', stats.total_orders, 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', 'text-blue-400'),
-    ('Total Users', stats.total_users, 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'text-green-400'),
-    ('Pending Orders', stats.orders_pending, 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', 'text-yellow-400'),
+    ('Total Revenue',   '₹' ~ stats.revenue_total|int,  'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'text-gold-400'),
+    ('Total Orders',    stats.total_orders,              'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', 'text-blue-400'),
+    ('Total Customers', stats.total_users,               'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'text-green-400'),
+    ('Pending Orders',  stats.orders_pending,            'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', 'text-yellow-400'),
   ] %}
   <div class="ctrl-card p-4 flex items-center gap-3">
     <div class="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center flex-shrink-0">
@@ -18,17 +21,22 @@
   </div>
   {% endfor %}
 </div>
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-  {% for label, value, sub in [
-    ('Today Revenue', '₹' ~ stats.revenue_today|int, 'vs yesterday'),
-    ('Orders Today', stats.orders_today, 'new today'),
-    ('Signups Today', stats.signups_today, 'new today'),
-    ('Total Products', stats.total_products, stats.total_categories ~ ' categories'),
+
+<!-- Second row: granular stats -->
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mt-4">
+  {% for label, value, color in [
+    ('Revenue Today',    '₹' ~ stats.revenue_today|int,  'text-gold-400'),
+    ('Revenue (Month)',  '₹' ~ stats.revenue_month|int,  'text-gold-300'),
+    ('Orders Today',     stats.orders_today,              'text-blue-300'),
+    ('In Processing',    stats.orders_processing,         'text-purple-300'),
+    ('Signups Today',    stats.signups_today,             'text-green-400'),
+    ('Low Stock',        stats.low_stock_products,        'text-red-400'),
+    ('Refunds Pending',  stats.refunds_pending,           'text-orange-400'),
+    ('Failed Payments',  stats.payments_failed,           'text-red-400'),
   ] %}
-  <div class="ctrl-card p-4">
-    <p class="text-xs text-gray-500 mb-1">{{ label }}</p>
-    <p class="text-2xl font-bold text-white">{{ value }}</p>
-    <p class="text-xs text-gray-600 mt-1">{{ sub }}</p>
+  <div class="ctrl-card p-3 text-center">
+    <p class="text-[10px] text-gray-500 mb-1">{{ label }}</p>
+    <p class="text-lg font-bold {{ color }}">{{ value }}</p>
   </div>
   {% endfor %}
 </div>

@@ -1,0 +1,21 @@
+{% for customer in customers %}
+<tr class="hover:bg-white/5 transition-colors">
+  <td class="px-4 py-3">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-navy-700 flex items-center justify-center text-xs font-bold text-white">
+        {{ (customer.first_name[0] if customer.first_name else customer.email[0]).upper() }}
+      </div>
+      <span class="text-gray-200 font-medium">{{ customer.get_full_name() or customer.username }}</span>
+    </div>
+  </td>
+  <td class="px-4 py-3 text-gray-400">{{ customer.email }}</td>
+  <td class="px-4 py-3 text-right text-gray-300">{{ customer.order_count }}</td>
+  <td class="px-4 py-3 text-right font-medium text-gold-400">₹{{ "%.0f"|format(customer.lifetime_value or 0) }}</td>
+  <td class="px-4 py-3 text-gray-500 text-xs">{{ customer.date_joined.strftime('%d %b %Y') }}</td>
+  <td class="px-4 py-3 text-right">
+    <a href="{{ url('control:customer_detail', pk=customer.pk) }}" class="ctrl-btn ctrl-btn-gray text-xs">View</a>
+  </td>
+</tr>
+{% else %}
+<tr><td colspan="6" class="px-4 py-12 text-center text-gray-500">No customers found.</td></tr>
+{% endfor %}

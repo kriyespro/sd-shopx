@@ -1,0 +1,41 @@
+{% extends "control/base_control.jinja" %}
+{% block title %}Reviews{% endblock %}
+{% block page_title %}Reviews{% endblock %}
+{% block page_subtitle %}{{ pending_count }} review(s) pending approval{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="flex gap-2 mb-4">
+  <a href="{{ url('control:reviews') }}"
+     class="ctrl-btn {% if not approved_filter %}ctrl-btn-gold{% else %}ctrl-btn-gray{% endif %} text-xs">All</a>
+  <a href="{{ url('control:reviews') }}?approved=0"
+     class="ctrl-btn {% if approved_filter == '0' %}ctrl-btn-red{% else %}ctrl-btn-gray{% endif %} text-xs">
+    Pending ({{ pending_count }})
+  </a>
+  <a href="{{ url('control:reviews') }}?approved=1"
+     class="ctrl-btn {% if approved_filter == '1' %}ctrl-btn-gold{% else %}ctrl-btn-gray{% endif %} text-xs">Approved</a>
+</div>
+
+<div class="ctrl-card overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="border-b border-gray-800">
+      <tr class="text-left text-xs text-gray-500 uppercase tracking-wider">
+        <th class="px-4 py-3">Product</th>
+        <th class="px-4 py-3">Customer</th>
+        <th class="px-4 py-3">Rating</th>
+        <th class="px-4 py-3">Review</th>
+        <th class="px-4 py-3">Status</th>
+        <th class="px-4 py-3">Date</th>
+        <th class="px-4 py-3 text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-800/60" id="reviews-body">
+      {% for review in reviews %}
+      {% include 'control/partials/_review_row.jinja' %}
+      {% else %}
+      <tr><td colspan="7" class="px-4 py-12 text-center text-gray-500">No reviews found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

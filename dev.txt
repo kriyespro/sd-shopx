@@ -13,4 +13,15 @@
 [DONE] Phase 3 — control/urls.py: all routes under /admin/ namespace=control
 [DONE] Phase 3 — Templates: base_control, dashboard, users, user_detail, products, product_edit, categories, category_edit, orders, order_detail + all partials
 [DONE] Phase 3 — Added control to INSTALLED_APPS, wired path('admin/', include('control.urls')) in config/urls.py
+[DONE] Home page — replaced "Shop by Shape" with 6-category image grid; removed ring creator CTA section
+[DONE] /sd admin — full control: ProductImage, ProductVariant, enhanced Product/Order/User/Review admins, AdminLog registered read-only
+[DONE] /admin control panel — Payment + Refund models added, migrated; full Shopify-standard features built:
+  - Customers page (buyers list + lifetime value + detail with stats/orders/wishlist)
+  - Payments page (list + filter by status + order link)
+  - Refund Tracker (list + manage status + create from order detail)
+  - Inventory page (stock levels, HTMX live toggle active/featured/new_arrival, inline stock update)
+  - Reviews page (approve/reject HTMX toggle, delete)
+  - Order detail expanded (payment form, refund create/manage, timeline)
+  - Dashboard: 12 live stats (revenue today/month/total, low stock, refunds pending, failed payments)
+  - Sidebar: Inventory, Reviews, Payments, Refunds, Customers added
 [IN PROGRESS] Phase 4 — Payment integration, email notifications, SEO

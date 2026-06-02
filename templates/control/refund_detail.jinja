@@ -1,0 +1,96 @@
+{% extends "control/base_control.jinja" %}
+{% block title %}Refund #{{ refund.id }}{% endblock %}
+{% block page_title %}Refund #{{ refund.id }}{% endblock %}
+{% block page_subtitle %}Order #{{ refund.order.order_number }} — ₹{{ refund.amount }}{% endblock %}
+
+{% block content %}
+{% set status_colors = {
+  'requested':  'bg-yellow-900/50 text-yellow-300',
+  'approved':   'bg-blue-900/50 text-blue-300',
+  'processing': 'bg-purple-900/50 text-purple-300',
+  'processed':  'bg-green-900/50 text-green-300',
+  'rejected':   'bg-red-900/50 text-red-300',
+} %}
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+  <!-- Info -->
+  <div class="ctrl-card p-5 space-y-4">
+    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Refund Info</h3>
+    <div class="space-y-2 text-sm">
+      <div class="flex justify-between">
+        <span class="text-gray-500">Order</span>
+        <a href="{{ url('control:order_detail', pk=refund.order.pk) }}" class="text-gold-400 hover:underline">#{{ refund.order.order_number }}</a>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">Customer</span>
+        <span class="text-gray-300">{{ refund.order.email }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">Amount</span>
+        <span class="text-white font-semibold">₹{{ refund.amount }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">Status</span>
+        <span class="badge {{ status_colors.get(refund.status, 'bg-gray-700 text-gray-300') }}">{{ refund.get_status_display() }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">Requested</span>
+        <span class="text-gray-400 text-xs">{{ refund.requested_at.strftime('%d %b %Y %H:%M') }}</span>
+      </div>
+      {% if refund.processed_at %}
+      <div class="flex justify-between">
+        <span class="text-gray-500">Processed</span>
+        <span class="text-gray-400 text-xs">{{ refund.processed_at.strftime('%d %b %Y %H:%M') }}</span>
+      </div>
+      {% endif %}
+      {% if refund.transaction_id %}
+      <div class="flex justify-between">
+        <span class="text-gray-500">Transaction ID</span>
+        <span class="text-gray-300 font-mono text-xs">{{ refund.transaction_id }}</span>
+      </div>
+      {% endif %}
+    </div>
+    <div class="pt-3 border-t border-gray-800">
+      <p class="text-xs text-gray-500 mb-1">Reason</p>
+      <p class="text-sm text-gray-300">{{ refund.reason }}</p>
+    </div>
+    {% if refund.notes %}
+    <div>
+      <p class="text-xs text-gray-500 mb-1">Notes</p>
+      <p class="text-sm text-gray-400">{{ refund.notes }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Update Status -->
+  <div class="ctrl-card p-5">
+    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Update Refund</h3>
+    <form method="post">
+      {{ csrf_input }}
+      <div class="space-y-4">
+        <div>
+          <label class="ctrl-label">Status</label>
+          {{ form.status }}
+        </div>
+        <div>
+          <label class="ctrl-label">Transaction ID</label>
+          {{ form.transaction_id }}
+        </div>
+        <div>
+          <label class="ctrl-label">Processed At</label>
+          {{ form.processed_at }}
+        </div>
+        <div>
+          <label class="ctrl-label">Internal Notes</label>
+          {{ form.notes }}
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="ctrl-btn ctrl-btn-gold">Save Changes</button>
+          <a href="{{ url('control:refunds') }}" class="ctrl-btn ctrl-btn-gray">← Back</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
