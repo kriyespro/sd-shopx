@@ -1,18 +1,28 @@
 {% extends "base.jinja" %}
 
-{% block title %}Contact — {{ site_brand }}{% endblock %}
+{% block title %}Contact — {{ site_settings.site_name }}{% endblock %}
 
 {% block content %}
 <section class="page-bg py-20">
   <div class="max-w-3xl mx-auto px-6">
     <p class="text-xs tracking-[0.3em] uppercase text-gold-600 mb-3">Get in Touch</p>
-    <h1 class="font-serif text-4xl md:text-5xl text-navy-800 mb-6">Contact {{ site_brand }}</h1>
+    <h1 class="font-serif text-4xl md:text-5xl text-navy-800 mb-6">Contact {{ site_settings.site_name }}</h1>
     <div class="bg-white border border-gray-100 p-8 space-y-4">
+      {% if site_settings.email %}
       <p class="text-gray-600">
         Email:
-        <a href="mailto:{{ site_email }}" class="text-navy-700 hover:underline">{{ site_email }}</a>
+        <a href="mailto:{{ site_settings.email }}" class="text-navy-700 hover:underline">{{ site_settings.email }}</a>
       </p>
-      <p class="text-gray-600">Phone: <a href="tel:+918238366075" class="text-navy-700 hover:underline">+91 82383 66075</a></p>
+      {% endif %}
+      {% if site_settings.phone %}
+      <p class="text-gray-600">Phone: <a href="tel:{{ site_settings.phone }}" class="text-navy-700 hover:underline">{{ site_settings.phone }}</a></p>
+      {% endif %}
+      {% if site_settings.full_address %}
+      <p class="text-gray-600">Address: {{ site_settings.full_address }}</p>
+      {% endif %}
+      {% if site_settings.business_hours %}
+      <p class="text-gray-600">Hours: {{ site_settings.business_hours }}</p>
+      {% endif %}
       <p class="text-sm text-gray-500">We typically respond within one business day.</p>
     </div>
   </div>
