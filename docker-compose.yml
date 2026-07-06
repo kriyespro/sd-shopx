@@ -42,16 +42,29 @@ services:
     image: nginx:1.27-alpine
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "80:80"        # required: Let's Encrypt HTTP-01 challenge always validates on 80
+      - "8089:80"       # requested test port — same site, reachable at :8089 too
+      - "443:443"       # SSL, enabled once nginx/nginx.conf has the server block (see DEPLOY.md)
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - static_volume:/app/staticfiles:ro
       - media_volume:/app/media:ro
+      - certbot_webroot:/var/www/certbot
+      - certbot_certs:/etc/letsencrypt:ro
     depends_on:
       - web
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot_webroot:/var/www/certbot
+      - certbot_certs:/etc/letsencrypt
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do sleep 12h; done'"
 
 volumes:
   postgres_data:
   redis_data:
   static_volume:
   media_volume:
+  certbot_webroot:
+  certbot_certs:

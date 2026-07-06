@@ -48,8 +48,9 @@ docker compose up -d web nginx
 ```
 
 ```bash
-curl -I http://mnxstore.com/       # expect 200
-docker compose logs -f web         # check for errors
+curl -I http://mnxstore.com/           # expect 200
+curl -I http://159.195.52.197:8089/    # same site, on the requested test port
+docker compose logs -f web             # check for errors
 ```
 
 ## 3. Migrate + create admin user (manual, on purpose)
@@ -65,15 +66,41 @@ docker compose exec web python manage.py createsuperuser
 Log into `https://mnxstore.com/sd/` and fill in **Site Settings** (logo,
 email, phone, address) — powers the footer/navbar/contact page.
 
-## 4. HTTPS (Let's Encrypt), then lock down DEBUG
+## 4. SSL install (Let's Encrypt via the `certbot` container)
+
+Nginx runs *inside Docker*, not on the host, so this uses the webroot method
+against the `certbot` service already defined in `docker-compose.yml` — no
+`apt install certbot` on the host needed.
 
 ```bash
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d mnxstore.com -d www.mnxstore.com
+docker compose up -d certbot
+docker compose run --rm certbot certonly \
+  --webroot -w /var/www/certbot \
+  -d mnxstore.com -d www.mnxstore.com \
+  --email you@mnxstore.com --agree-tos --no-eff-email
 ```
 
-certbot edits the nginx container's config on the host mount and reloads it.
-Once `https://mnxstore.com/` works:
+This only works while port 80 is reachable from the public internet (Let's
+Encrypt's HTTP-01 challenge always validates over port 80 — the 8089 test
+port doesn't factor in here at all).
+
+Once it succeeds, wire the cert into nginx:
+
+```bash
+cat nginx/nginx-ssl.conf.example >> nginx/nginx.conf
+docker compose exec nginx nginx -s reload
+curl -I https://mnxstore.com/      # expect 200
+```
+
+Auto-renewal (certs expire every 90 days) — add to the host's crontab:
+
+```bash
+crontab -e
+# add:
+0 3 * * * cd /path/to/mnxstore && docker compose run --rm certbot renew -q && docker compose exec nginx nginx -s reload
+```
+
+Then lock down DEBUG now that HTTPS actually works:
 
 ```bash
 nano .env        # set DEBUG=False
@@ -102,7 +129,11 @@ docker compose exec web python manage.py migrate   # only if there's a new migra
 - **Gunicorn** — 3 workers, behind Nginx as reverse proxy.
 - **Nginx** — `server_name mnxstore.com www.mnxstore.com 159.195.52.197`
   already set in `nginx/nginx.conf`; serves `/static/` and `/media/`
-  directly, proxies everything else to Gunicorn.
+  directly, proxies everything else to Gunicorn. Listens on host ports 80
+  (required for Let's Encrypt validation + eventual HTTPS redirect), 8089
+  (requested test port, same site), and 443 (SSL, once step 4 is done).
+- **Certbot** — runs as its own `certbot` service in `docker-compose.yml`,
+  shares a webroot volume with nginx for ACME challenges.
 - **Whitenoise** — belt-and-suspenders static serving inside the Django
   process itself, in case the Nginx static volume isn't mounted somewhere.
 - **Security headers** — HSTS, secure cookies, SSL redirect, `X_FRAME_OPTIONS`,
