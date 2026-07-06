@@ -39,7 +39,11 @@ correctly for mnxstore.com in `.env.example`. You still need to set:
 python3 -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
 
-## 2. Build and start (HTTP only, DEBUG=True)
+## 2. Build and start
+
+Ports 80/443 on this VPS already belong to another site's host-level nginx,
+so this app's own nginx container only binds `8089` (see `docker-compose.yml`)
+— it does **not** try to claim 80/443.
 
 ```bash
 docker compose build
@@ -48,8 +52,7 @@ docker compose up -d web nginx
 ```
 
 ```bash
-curl -I http://mnxstore.com/           # expect 200
-curl -I http://159.195.52.197:8089/    # same site, on the requested test port
+curl -I http://127.0.0.1:8089/         # from the VPS itself — expect 200
 docker compose logs -f web             # check for errors
 ```
 
@@ -63,44 +66,42 @@ docker compose exec web python manage.py migrate
 docker compose exec web python manage.py createsuperuser
 ```
 
-Log into `https://mnxstore.com/sd/` and fill in **Site Settings** (logo,
+Log into `http://127.0.0.1:8089/sd/` (or `http://mnxstore.com/sd/` once the
+host vhost from step 4 is in place) and fill in **Site Settings** (logo,
 email, phone, address) — powers the footer/navbar/contact page.
 
-## 4. SSL install (Let's Encrypt via the `certbot` container)
+## 4. SSL install (via the host's existing nginx, not this repo's Docker setup)
 
-Nginx runs *inside Docker*, not on the host, so this uses the webroot method
-against the `certbot` service already defined in `docker-compose.yml` — no
-`apt install certbot` on the host needed.
+This app's nginx container never touches 80/443 — the box's **host-level**
+nginx (the one already fronting the other site) needs a new vhost for
+mnxstore.com that reverse-proxies to `127.0.0.1:8089`, and its own certbot
+handles the cert, same as it already does for whatever else is on this box.
 
 ```bash
-docker compose up -d certbot
-docker compose run --rm certbot certonly \
-  --webroot -w /var/www/certbot \
-  -d mnxstore.com -d www.mnxstore.com \
-  --email you@mnxstore.com --agree-tos --no-eff-email
+sudo cp nginx/host-vhost.conf.example /etc/nginx/sites-available/mnxstore.com
+sudo ln -s /etc/nginx/sites-available/mnxstore.com /etc/nginx/sites-enabled/
+sudo nginx -t                      # validate config
+sudo systemctl reload nginx
+curl -I http://mnxstore.com/       # expect 200, proxied through to :8089
 ```
 
-This only works while port 80 is reachable from the public internet (Let's
-Encrypt's HTTP-01 challenge always validates over port 80 — the 8089 test
-port doesn't factor in here at all).
+(If this host doesn't use the `sites-available`/`sites-enabled` layout —
+e.g. everything lives directly in `/etc/nginx/conf.d/` — drop the file
+there instead and skip the symlink step.)
 
-Once it succeeds, wire the cert into nginx:
+Then get the cert the same way the host's other site presumably already
+has one (its existing certbot is reused, nothing new to install):
 
 ```bash
-cat nginx/nginx-ssl.conf.example >> nginx/nginx.conf
-docker compose exec nginx nginx -s reload
+sudo certbot --nginx -d mnxstore.com -d www.mnxstore.com
 curl -I https://mnxstore.com/      # expect 200
 ```
 
-Auto-renewal (certs expire every 90 days) — add to the host's crontab:
+Renewal is whatever this host already has set up for its other cert(s) —
+certbot's systemd timer or cron typically renews everything it manages,
+no per-site config needed.
 
-```bash
-crontab -e
-# add:
-0 3 * * * cd /path/to/mnxstore && docker compose run --rm certbot renew -q && docker compose exec nginx nginx -s reload
-```
-
-Then lock down DEBUG now that HTTPS actually works:
+Once `https://mnxstore.com/` works, lock this app down:
 
 ```bash
 nano .env        # set DEBUG=False
@@ -127,13 +128,10 @@ docker compose exec web python manage.py migrate   # only if there's a new migra
   off sqlite automatically once `POSTGRES_DB` is present.
 - **Redis** — cache + session backend, only active when `DEBUG=False`.
 - **Gunicorn** — 3 workers, behind Nginx as reverse proxy.
-- **Nginx** — `server_name mnxstore.com www.mnxstore.com 159.195.52.197`
-  already set in `nginx/nginx.conf`; serves `/static/` and `/media/`
-  directly, proxies everything else to Gunicorn. Listens on host ports 80
-  (required for Let's Encrypt validation + eventual HTTPS redirect), 8089
-  (requested test port, same site), and 443 (SSL, once step 4 is done).
-- **Certbot** — runs as its own `certbot` service in `docker-compose.yml`,
-  shares a webroot volume with nginx for ACME challenges.
+- **Nginx (this repo's container)** — serves `/static/` and `/media/`
+  directly, proxies everything else to Gunicorn, listens on host port 8089
+  only. It does not own 80/443 and has no certbot/TLS involvement — that's
+  the host's job (see `nginx/host-vhost.conf.example`).
 - **Whitenoise** — belt-and-suspenders static serving inside the Django
   process itself, in case the Nginx static volume isn't mounted somewhere.
 - **Security headers** — HSTS, secure cookies, SSL redirect, `X_FRAME_OPTIONS`,
