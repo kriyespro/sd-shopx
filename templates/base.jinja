@@ -101,7 +101,7 @@
        x-transition:leave="transition ease-in duration-300"
        x-transition:leave-start="translate-x-0"
        x-transition:leave-end="translate-x-full">
-    <div hx-get="{{ url('cart:drawer') }}" hx-trigger="load" hx-swap="innerHTML" class="flex flex-col h-full">
+    <div id="cart-drawer" hx-get="{{ url('cart:drawer') }}" hx-trigger="load" hx-swap="innerHTML" class="flex flex-col h-full">
       <div class="flex items-center justify-between p-6 border-b">
         <h2 class="font-serif text-xl">Your Cart</h2>
         <button @click="cartOpen = false" class="text-gray-400 hover:text-gray-900">

@@ -15,6 +15,31 @@ class Cart:
             cart = self.session[settings.CART_SESSION_ID] = {}
         self.cart = cart
 
+    def prune_invalid_products(self):
+        """Drop cart lines for deleted or inactive products.
+
+        Not called from __init__: this instantiates on every page via the
+        cart context processor, and pruning does a DB query, so it only
+        runs where the cart contents are actually displayed or mutated.
+        """
+        if not self.cart:
+            return
+        product_ids = [pid for pid in self.cart if str(pid).isdigit()]
+        if not product_ids:
+            return
+        valid_ids = {
+            str(product_id)
+            for product_id in Product.objects.filter(
+                id__in=product_ids,
+                is_active=True,
+            ).values_list('id', flat=True)
+        }
+        stale_ids = [pid for pid in self.cart if pid not in valid_ids]
+        for product_id in stale_ids:
+            del self.cart[product_id]
+        if stale_ids:
+            self.save()
+
     def add(self, product, quantity=1, metal='', ring_size='', override_qty=False):
         product_id = str(product.id)
         if product_id not in self.cart:
@@ -30,6 +55,10 @@ class Cart:
             self.cart[product_id]['quantity'] = quantity
         else:
             self.cart[product_id]['quantity'] += quantity
+        # Never let the cart hold more than is in stock.
+        self.cart[product_id]['quantity'] = max(0, min(self.cart[product_id]['quantity'], product.stock))
+        if self.cart[product_id]['quantity'] == 0:
+            del self.cart[product_id]
         self.save()
 
     def save(self):

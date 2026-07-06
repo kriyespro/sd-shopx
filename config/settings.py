@@ -1,17 +1,20 @@
 from pathlib import Path
 import os
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+from dotenv import load_dotenv
 
-SECRET_KEY = 'django-insecure-mnxstore-dev-secret-key-change-in-prod'
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
+
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-mnxstore-dev-secret-key-change-in-prod')
 
 SITE_BRAND = 'MnxStore'
 SITE_EMAIL = 'hello@mnxstore.com'
 SITE_TAGLINE = 'IGI/GIA Certified Lab-Grown Diamond Jewelry'
 
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -55,6 +58,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'cart.context_processors.cart',
             ],
             'extensions': [
                 'jinja2.ext.i18n',

@@ -69,7 +69,7 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         if not self.order_number:
             import uuid
-            self.order_number = 'AC' + str(uuid.uuid4().hex[:8]).upper()
+            self.order_number = 'MX' + str(uuid.uuid4().hex[:8]).upper()
         super().save(*args, **kwargs)
 
 
@@ -87,6 +87,9 @@ class OrderItem(models.Model):
 
     @property
     def total_price(self):
+        # Unsaved admin inline rows have price=None before the form is filled.
+        if self.price is None or self.quantity is None:
+            return 0
         return self.price * self.quantity
 
 

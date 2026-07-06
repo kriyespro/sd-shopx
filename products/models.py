@@ -103,10 +103,14 @@ class Product(models.Model):
 
     @property
     def primary_image(self):
-        img = self.images.filter(is_primary=True).first()
-        if not img:
-            img = self.images.first()
-        return img
+        # Iterate .all() instead of a fresh .filter() so callers that
+        # prefetch_related('images') get this for free instead of 1-2
+        # extra queries per product in list views.
+        images = list(self.images.all())
+        for image in images:
+            if image.is_primary:
+                return image
+        return images[0] if images else None
 
     @property
     def discount_percent(self):

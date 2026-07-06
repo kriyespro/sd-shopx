@@ -120,7 +120,7 @@ class ProductListView(ControlAccessMixin, View):
     def get(self, request):
         q = request.GET.get('q', '')
         status = request.GET.get('status', '')
-        products = Product.objects.select_related('category').order_by('-created_at')
+        products = Product.objects.select_related('category').prefetch_related('images').order_by('-created_at')
         if q:
             products = products.filter(name__icontains=q)
         if status == 'active':

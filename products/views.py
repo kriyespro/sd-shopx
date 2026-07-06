@@ -1,26 +1,19 @@
 from django.shortcuts import render, get_object_or_404
+from django.http import Http404
 from products.models import Category, Product
+from products.services import resolve_collection
 
 
 def collection(request, slug):
-    category = get_object_or_404(Category, slug=slug, is_active=True)
-    products = category.products.filter(is_active=True)
-
-    # Sorting
-    sort = request.GET.get('sort', 'created_at')
-    sort_map = {
-        'az': 'name',
-        'za': '-name',
-        'price_asc': 'price',
-        'price_desc': '-price',
-        'newest': '-created_at',
-    }
-    products = products.order_by(sort_map.get(sort, '-created_at'))
+    try:
+        category, products = resolve_collection(slug, sort=request.GET.get('sort', 'newest'))
+    except Category.DoesNotExist as exc:
+        raise Http404('No Category matches the given query.') from exc
 
     context = {
         'category': category,
         'products': products,
-        'sort': sort,
+        'sort': request.GET.get('sort', 'newest'),
         'product_count': products.count(),
     }
     return render(request, 'products/collection.jinja', context)
@@ -31,7 +24,7 @@ def product_detail(request, slug):
     images = product.images.all()
     related = Product.objects.filter(
         category=product.category, is_active=True
-    ).exclude(id=product.id)[:4]
+    ).exclude(id=product.id).prefetch_related('images')[:4]
     reviews = product.reviews.filter(is_approved=True)[:10]
     context = {
         'product': product,
@@ -44,7 +37,7 @@ def product_detail(request, slug):
 
 def shop(request):
     """All products view."""
-    products = Product.objects.filter(is_active=True)
+    products = Product.objects.filter(is_active=True).select_related('category').prefetch_related('images')
     categories = Category.objects.filter(parent=None, is_active=True)
 
     # Filter by category
@@ -104,5 +97,5 @@ def search(request):
             is_active=True,
             description__icontains=q
         )
-        products = products.distinct()
+        products = products.distinct().prefetch_related('images')
     return render(request, 'products/search.jinja', {'products': products, 'query': q})

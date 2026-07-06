@@ -1,0 +1,20 @@
+{% extends "base.jinja" %}
+
+{% block title %}About — {{ site_brand }}{% endblock %}
+
+{% block content %}
+<section class="page-bg py-20">
+  <div class="max-w-3xl mx-auto px-6">
+    <p class="text-xs tracking-[0.3em] uppercase text-gold-600 mb-3">Our Story</p>
+    <h1 class="font-serif text-4xl md:text-5xl text-navy-800 mb-6">About {{ site_brand }}</h1>
+    <p class="text-gray-600 leading-relaxed mb-4">
+      {{ site_brand }} crafts IGI and GIA certified lab-grown diamond jewelry with a focus on
+      quality, transparency, and timeless design.
+    </p>
+    <p class="text-gray-600 leading-relaxed">
+      From engagement rings to everyday fine jewelry, every piece is made to celebrate your
+      moments with ethical stones and expert craftsmanship.
+    </p>
+  </div>
+</section>
+{% endblock %}

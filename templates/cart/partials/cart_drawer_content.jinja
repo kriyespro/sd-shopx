@@ -9,7 +9,7 @@
 <div class="flex-1 overflow-y-auto p-4 space-y-3">
   {% if cart|list|length > 0 %}
     {% for item in cart %}
-    {% if item.product is defined %}
+    {% if 'product' in item and item.product %}
     <div class="flex gap-3 items-start p-3 bg-gray-50">
       <a href="{{ url('products:detail', slug=item.product.slug) }}" class="flex-shrink-0 w-16 h-16 bg-white overflow-hidden">
         {% if item.product.primary_image %}
@@ -26,8 +26,8 @@
         <p class="text-sm font-medium text-navy-700 mt-1">Rs. {{ "{:,.2f}".format(item.total_price) }}</p>
       </div>
       <button hx-post="{{ url('cart:remove', product_id=item.product.id) }}"
-              hx-get="{{ url('cart:drawer') }}"
-              hx-target="closest .flex-col"
+              hx-vals='{"view": "drawer"}'
+              hx-target="#cart-drawer"
               hx-swap="innerHTML"
               class="text-gray-300 hover:text-red-500 flex-shrink-0 mt-0.5">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>

@@ -35,10 +35,10 @@
         Purchase $3,000 USD or more and receive a Stud Earring valued at $700 USD absolutely free!
       </p>
       <div class="flex flex-wrap gap-4">
-        <a href="/shop/collection/engagement-rings/" class="btn-outline btn-outline-white">
+        <a href="{{ url('products:collection', slug='engagement-rings') }}" class="btn-outline btn-outline-white">
           Begin with a Setting &rarr;
         </a>
-        <a href="/shop/collection/lab-grown-diamonds/" class="btn-outline btn-outline-white">
+        <a href="{{ url('products:collection', slug='lab-grown-diamonds') }}" class="btn-outline btn-outline-white">
           Begin with a Stone &rarr;
         </a>
       </div>
@@ -78,12 +78,12 @@
 
     <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
       {% set static_cats = [
-        ('Engagement Rings',    '/shop/collection/engagement-rings/',    'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80&fit=crop'),
-        ('Toi Et Moi Rings',    '/shop/collection/toi-et-moi/',          'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80&fit=crop'),
-        ('Lab-Grown Diamonds',  '/shop/collection/lab-grown-diamonds/',  'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=800&q=80&fit=crop'),
-        ('Necklaces & Pendants','/shop/collection/necklaces/',           'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80&fit=crop'),
-        ('Earrings',            '/shop/collection/earrings/',            'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80&fit=crop'),
-        ('Bracelets & Bangles', '/shop/collection/bracelets/',           'https://images.unsplash.com/photo-1601121141461-9d6647bef0a1?w=800&q=80&fit=crop'),
+        ('Engagement Rings',    'engagement-rings',    'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80&fit=crop'),
+        ('Toi Et Moi Rings',    'toi-et-moi-rings',    'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80&fit=crop'),
+        ('Lab-Grown Diamonds',  'lab-grown-diamonds',  'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=800&q=80&fit=crop'),
+        ('Necklaces & Pendants','necklaces',           'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80&fit=crop'),
+        ('Earrings',            'earrings',            'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80&fit=crop'),
+        ('Bracelets & Bangles', 'bracelets',           'https://images.unsplash.com/photo-1601121141461-9d6647bef0a1?w=800&q=80&fit=crop'),
       ] %}
       {% if categories %}
         {% for cat in categories[:6] %}
@@ -109,8 +109,8 @@
         </a>
         {% endfor %}
       {% else %}
-        {% for cat_name, cat_url, img_url in static_cats %}
-        <a href="{{ cat_url }}"
+        {% for cat_name, cat_slug, img_url in static_cats %}
+        <a href="{{ url('products:collection', slug=cat_slug) }}"
            class="group relative overflow-hidden aspect-[3/4] bg-gray-100 hover:shadow-xl transition-shadow duration-300">
           <img src="{{ img_url }}" alt="{{ cat_name }}"
                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -223,7 +223,7 @@
     </div>
 
     <div class="text-center mt-8">
-      <a href="/shop/collection/toi-et-moi/" class="btn-outline">Explore the Collection &rarr;</a>
+      <a href="{{ url('products:collection', slug='toi-et-moi-rings') }}" class="btn-outline">Explore the Collection &rarr;</a>
     </div>
   </div>
 </section>

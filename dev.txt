@@ -24,4 +24,30 @@
   - Order detail expanded (payment form, refund create/manage, timeline)
   - Dashboard: 12 live stats (revenue today/month/total, low stock, refunds pending, failed payments)
   - Sidebar: Inventory, Reviews, Payments, Refunds, Customers added
+[DONE] Fix /sd/orders/order/add/ TypeError — OrderItem.total_price handles None price/qty on empty admin inlines
+[DONE] OrderItemInline — editable line items + safe line_total display; order numbers use MX prefix
+[DONE] Missing cart/partials/cart_count.jinja for HTMX add-to-cart badge update
+[DONE] Cart context processor + navbar live cart count
+[DONE] About + Contact pages (templates/core/about.jinja, contact.jinja)
+[DONE] Collection 404 fix — style slugs (solitaire-rings, halo-rings, etc.) resolve via products/services.py keyword filters + slug aliases
+[DONE] Full project audit — cart ghost-item prune, drawer remove HTMX, navbar cart count OOB updates
+[DONE] Wishlist unauth → HX-Redirect login; login next URL validated; cart template product checks fixed
+[DONE] End-to-end flow verified: storefront, collections, cart, checkout, /sd admin, /admin control (37 checks)
 [IN PROGRESS] Phase 4 — Payment integration, email notifications, SEO
+[DONE] Full audit pass — bug/security/perf fixes:
+  - Fixed overselling: Cart.add() clamps to Product.stock; checkout now runs
+    select_for_update + re-validates stock + decrements it inside one atomic
+    transaction (previously stock was never checked or deducted anywhere)
+  - cart_add/cart_update no longer 500 on non-numeric quantity (cart/services.py
+    parse_quantity helper, clamped 1-999)
+  - Wired existing python-dotenv dep into config/settings.py: SECRET_KEY/DEBUG/
+    ALLOWED_HOSTS now read from .env with safe dev fallbacks; added .env.example
+  - Perf: Cart no longer prunes invalid products (DB query) on every single
+    page load via the global context processor — only in views that actually
+    show/mutate cart contents (cart detail/add/update/remove/drawer, checkout)
+  - Perf: Product.primary_image was doing 1-2 fresh queries per product per
+    render (N+1 across shop/collection/search/home product grids); rewritten
+    to read from prefetch cache, and prefetch_related('images') added to all
+    product list querysets (core, products, control)
+  - Verified via `manage.py check`, dev server smoke test, and shell-level
+    Cart stock-clamp + parse_quantity checks — no regressions found

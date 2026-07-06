@@ -1,9 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.views.decorators.http import require_POST
+from django.http import HttpResponse
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from .models import UserProfile, Wishlist
 from products.models import Product
 from orders.models import Order
@@ -43,8 +46,10 @@ def user_login(request):
         user = authenticate(request, username=email, password=password)
         if user:
             login(request, user)
-            next_url = request.GET.get('next', 'users:dashboard')
-            return redirect(next_url)
+            next_url = request.GET.get('next') or request.POST.get('next')
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                return redirect(next_url)
+            return redirect('users:dashboard')
         else:
             messages.error(request, 'Invalid email or password.')
     return render(request, 'users/login.jinja', {})
@@ -67,18 +72,19 @@ def dashboard(request):
 
 @require_POST
 def wishlist_toggle(request, product_id):
+    product = get_object_or_404(Product, id=product_id, is_active=True)
     if not request.user.is_authenticated:
-        from django.http import JsonResponse
-        return JsonResponse({'status': 'login_required'}, status=401)
-    product = Product.objects.get(id=product_id)
+        if request.headers.get('HX-Request'):
+            response = HttpResponse(status=204)
+            response['HX-Redirect'] = reverse('users:login')
+            return response
+        return redirect('users:login')
     obj, created = Wishlist.objects.get_or_create(user=request.user, product=product)
     if not created:
         obj.delete()
     if request.headers.get('HX-Request'):
-        cart_count = request.session.get('cart', {})
-        is_wishlisted = created
         return render(request, 'users/partials/wishlist_btn.jinja', {
             'product': product,
-            'is_wishlisted': is_wishlisted,
+            'is_wishlisted': created,
         })
     return redirect('products:detail', slug=product.slug)

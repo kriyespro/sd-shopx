@@ -6,9 +6,15 @@ from .models import Order, OrderItem
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
-    readonly_fields = ('product', 'product_name', 'metal_type', 'ring_size', 'price', 'quantity', 'total_price')
-    fields = ('product', 'product_name', 'metal_type', 'ring_size', 'price', 'quantity', 'total_price')
+    fields = ('product', 'product_name', 'metal_type', 'ring_size', 'price', 'quantity', 'line_total')
+    readonly_fields = ('line_total',)
     can_delete = False
+
+    @admin.display(description='Total')
+    def line_total(self, obj):
+        if not obj or obj.pk is None and obj.price is None:
+            return '—'
+        return obj.total_price
 
 
 @admin.register(Order)

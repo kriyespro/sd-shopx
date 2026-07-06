@@ -54,12 +54,12 @@
       <div>
         <h4 class="text-xs font-semibold tracking-widest uppercase text-gold-400 mb-5">Shop</h4>
         <ul class="space-y-3 text-sm text-gray-400">
-          <li><a href="/shop/collection/engagement-rings/" class="hover:text-white transition-colors">Engagement Rings</a></li>
-          <li><a href="/shop/collection/toi-et-moi/" class="hover:text-white transition-colors">Toi Et Moi Rings</a></li>
-          <li><a href="/shop/collection/lab-grown-diamonds/" class="hover:text-white transition-colors">Lab-Grown Diamonds</a></li>
-          <li><a href="/shop/collection/necklaces/" class="hover:text-white transition-colors">Necklaces</a></li>
-          <li><a href="/shop/collection/earrings/" class="hover:text-white transition-colors">Earrings</a></li>
-          <li><a href="/shop/collection/bracelets/" class="hover:text-white transition-colors">Bracelets</a></li>
+          <li><a href="{{ url('products:collection', slug='engagement-rings') }}" class="hover:text-white transition-colors">Engagement Rings</a></li>
+          <li><a href="{{ url('products:collection', slug='toi-et-moi-rings') }}" class="hover:text-white transition-colors">Toi Et Moi Rings</a></li>
+          <li><a href="{{ url('products:collection', slug='lab-grown-diamonds') }}" class="hover:text-white transition-colors">Lab-Grown Diamonds</a></li>
+          <li><a href="{{ url('products:collection', slug='necklaces') }}" class="hover:text-white transition-colors">Necklaces</a></li>
+          <li><a href="{{ url('products:collection', slug='earrings') }}" class="hover:text-white transition-colors">Earrings</a></li>
+          <li><a href="{{ url('products:collection', slug='bracelets') }}" class="hover:text-white transition-colors">Bracelets</a></li>
           <li><a href="/shop/" class="hover:text-white transition-colors">View All</a></li>
         </ul>
       </div>
