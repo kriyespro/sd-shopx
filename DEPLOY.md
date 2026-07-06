@@ -74,32 +74,47 @@ email, phone, address) — powers the footer/navbar/contact page.
 
 This app's nginx container never touches 80/443 — the box's **host-level**
 nginx (the one already fronting the other site) needs a new vhost for
-mnxstore.com that reverse-proxies to `127.0.0.1:8089`, and its own certbot
-handles the cert, same as it already does for whatever else is on this box.
+mnxstore.com that reverse-proxies to `127.0.0.1:8089`.
+
+mnxstore.com is proxied through **Cloudflare in Full (strict) mode**, which
+requires a valid HTTPS listener on this origin's port 443. This host's
+certbot doesn't have the nginx plugin installed and it's unclear how the
+other vhosts here get their certs, so instead of fighting that, use a
+**Cloudflare Origin Certificate** — free, 15-year validity, no port-80
+challenge needed at all, and trusted directly by Cloudflare for Full
+(strict):
+
+```
+Cloudflare dashboard -> mnxstore.com -> SSL/TLS -> Origin Server
+-> Create Certificate (hostnames: mnxstore.com, www.mnxstore.com,
+   validity: 15 years)
+```
+
+Save the two PEM blocks it gives you onto the server:
+
+```bash
+sudo mkdir -p /etc/nginx/ssl/mnxstore
+sudo nano /etc/nginx/ssl/mnxstore/cert.pem   # paste "Origin Certificate"
+sudo nano /etc/nginx/ssl/mnxstore/key.pem    # paste "Private Key"
+sudo chmod 600 /etc/nginx/ssl/mnxstore/key.pem
+```
+
+Then install the vhost (already has both the :80 and :443 blocks, pointing
+at those cert paths):
 
 ```bash
 sudo cp nginx/host-vhost.conf.example /etc/nginx/sites-available/mnxstore.com
 sudo ln -s /etc/nginx/sites-available/mnxstore.com /etc/nginx/sites-enabled/
 sudo nginx -t                      # validate config
 sudo systemctl reload nginx
-curl -I http://mnxstore.com/       # expect 200, proxied through to :8089
+curl -I https://mnxstore.com/      # expect 200, proxied through to :8089
 ```
 
 (If this host doesn't use the `sites-available`/`sites-enabled` layout —
 e.g. everything lives directly in `/etc/nginx/conf.d/` — drop the file
 there instead and skip the symlink step.)
 
-Then get the cert the same way the host's other site presumably already
-has one (its existing certbot is reused, nothing new to install):
-
-```bash
-sudo certbot --nginx -d mnxstore.com -d www.mnxstore.com
-curl -I https://mnxstore.com/      # expect 200
-```
-
-Renewal is whatever this host already has set up for its other cert(s) —
-certbot's systemd timer or cron typically renews everything it manages,
-no per-site config needed.
+No renewal cron needed — Cloudflare Origin Certificates are valid 15 years.
 
 Once `https://mnxstore.com/` works, lock this app down:
 
