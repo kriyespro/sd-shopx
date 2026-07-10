@@ -40,6 +40,12 @@ def environment(**options):
         'site_brand': getattr(settings, 'SITE_BRAND', 'MnxStore'),
         'site_email': getattr(settings, 'SITE_EMAIL', 'hello@mnxstore.com'),
         'site_tagline': getattr(settings, 'SITE_TAGLINE', ''),
+        'default_product_image': getattr(
+            settings,
+            'DEFAULT_PRODUCT_IMAGE',
+            'https://images.unsplash.com/photo-1605100804763-247f67b3557e'
+            '?w=600&q=80&fit=crop&crop=center',
+        ),
     })
     env.install_null_translations()
     return env

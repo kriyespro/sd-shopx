@@ -24,35 +24,10 @@
 
   <!-- Product Image -->
   <a href="{{ url('products:detail', slug=product.slug) }}" class="block overflow-hidden bg-gray-50 aspect-square">
-    {% if product.primary_image %}
-      <img src="{{ product.primary_image.image.url }}" alt="{{ product.primary_image.alt or product.name }}"
-           class="product-img w-full h-full object-cover">
-    {% else %}
-      {#
-        Smart Unsplash fallback images based on product category.
-        Verified working jewelry photo IDs from Unsplash:
-      #}
-      {% set _cat = product.category.name %}
-      {% if _cat == 'Engagement Rings' %}
-        {% set _img = 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&q=80&fit=crop&crop=center' %}
-      {% elif _cat == 'Toi Et Moi Rings' %}
-        {% set _img = 'https://images.unsplash.com/photo-1529921879218-f99546dae8b6?w=600&q=80&fit=crop&crop=center' %}
-      {% elif _cat == 'Lab-Grown Diamonds' %}
-        {% set _img = 'https://images.unsplash.com/photo-1563396983906-b3795482a59a?w=600&q=80&fit=crop&crop=center' %}
-      {% elif _cat == 'Necklaces' %}
-        {% set _img = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80&fit=crop&crop=center' %}
-      {% elif _cat == 'Earrings' %}
-        {% set _img = 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80&fit=crop&crop=center' %}
-      {% elif _cat == 'Bracelets' %}
-        {% set _img = 'https://images.unsplash.com/photo-1573408301185-9519f94533f0?w=600&q=80&fit=crop&crop=center' %}
-      {% else %}
-        {% set _img = 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&q=80&fit=crop&crop=center' %}
-      {% endif %}
-      <img src="{{ _img }}"
-           alt="{{ product.name }}"
-           class="product-img w-full h-full object-cover"
-           loading="lazy">
-    {% endif %}
+    <img src="{{ product.display_image_url }}"
+         alt="{{ product.primary_image.alt if product.primary_image else product.name }}"
+         class="product-img w-full h-full object-cover"
+         loading="lazy">
   </a>
 
   <!-- Product Info -->

@@ -113,6 +113,20 @@ class Product(models.Model):
         return images[0] if images else None
 
     @property
+    def display_image_url(self):
+        """Uploaded primary image URL, or site default Unsplash fallback."""
+        from django.conf import settings
+        img = self.primary_image
+        if img and img.image:
+            return img.image.url
+        return getattr(
+            settings,
+            'DEFAULT_PRODUCT_IMAGE',
+            'https://images.unsplash.com/photo-1605100804763-247f67b3557e'
+            '?w=600&q=80&fit=crop&crop=center',
+        )
+
+    @property
     def discount_percent(self):
         if self.compare_price and self.compare_price > self.price:
             return int(((self.compare_price - self.price) / self.compare_price) * 100)

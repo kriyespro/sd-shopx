@@ -11,6 +11,10 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-mnxstore-dev-secret-k
 SITE_BRAND = 'MnxStore'
 SITE_EMAIL = 'hello@mnxstore.com'
 SITE_TAGLINE = 'IGI/GIA Certified Lab-Grown Diamond Jewelry'
+DEFAULT_PRODUCT_IMAGE = (
+    'https://images.unsplash.com/photo-1605100804763-247f67b3557e'
+    '?w=600&q=80&fit=crop&crop=center'
+)
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 

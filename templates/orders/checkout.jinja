@@ -78,9 +78,7 @@
           <div class="flex gap-3 items-center">
             <div class="relative flex-shrink-0">
               <div class="w-14 h-14 bg-gray-100 overflow-hidden">
-                {% if item.product.primary_image %}
-                  <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
-                {% endif %}
+                <img src="{{ item.product.display_image_url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
               </div>
               <span class="absolute -top-1 -right-1 bg-navy-700 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{{ item.quantity }}</span>
             </div>
