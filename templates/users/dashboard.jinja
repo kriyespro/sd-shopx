@@ -6,7 +6,12 @@
 {% block content %}
 <div class="page-bg min-h-screen py-10">
   <div class="max-w-screen-xl mx-auto px-6">
-    <h1 class="font-serif text-3xl text-navy-800 mb-8">My Account</h1>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <h1 class="font-serif text-3xl text-navy-800">My Account</h1>
+      {% if show_mission_control_link %}
+      <a href="{{ url('control:dashboard') }}" class="btn-navy text-sm">Open Mission Control</a>
+      {% endif %}
+    </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
       <!-- Sidebar -->
@@ -23,6 +28,10 @@
         <nav class="space-y-1 text-sm">
           <a href="#orders" class="block py-2 px-3 text-navy-700 bg-navy-50 font-medium rounded">My Orders</a>
           <a href="#wishlist" class="block py-2 px-3 text-gray-600 hover:text-navy-700 hover:bg-gray-50 rounded transition-colors">Wishlist</a>
+          <a href="{{ url('users:profile') }}" class="block py-2 px-3 text-gray-600 hover:text-navy-700 hover:bg-gray-50 rounded transition-colors">Edit Profile</a>
+          {% if show_mission_control_link %}
+          <a href="{{ url('control:dashboard') }}" class="block py-2 px-3 text-gold-700 hover:bg-amber-50 rounded transition-colors">Mission Control</a>
+          {% endif %}
           <a href="{{ url('users:logout') }}" class="block py-2 px-3 text-red-500 hover:bg-red-50 rounded transition-colors mt-4">Sign Out</a>
         </nav>
       </div>
@@ -35,7 +44,8 @@
           {% if orders %}
           <div class="space-y-3">
             {% for order in orders %}
-            <div class="border border-gray-100 p-4 flex items-center justify-between hover:border-navy-200 transition-colors">
+            <a href="{{ url('users:order_detail', order_number=order.order_number) }}"
+               class="border border-gray-100 p-4 flex items-center justify-between hover:border-navy-200 transition-colors block">
               <div>
                 <p class="text-sm font-medium text-navy-700 font-mono">{{ order.order_number }}</p>
                 <p class="text-xs text-gray-400 mt-0.5">{{ order.created_at.strftime('%d %b %Y') }}</p>
@@ -49,7 +59,7 @@
                   {{ order.get_status_display() }}
                 </span>
               </div>
-            </div>
+            </a>
             {% endfor %}
           </div>
           {% else %}

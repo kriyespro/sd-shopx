@@ -61,6 +61,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'cart.context_processors.cart',
                 'core.context_processors.site_settings',
+                'control.context_processors.control_context',
             ],
             'extensions': [
                 'jinja2.ext.i18n',

@@ -89,6 +89,16 @@
 <!-- Announcement Bar -->
 {% include 'components/announcement_bar.jinja' %}
 
+{% if is_impersonating %}
+<div class="bg-amber-500 text-navy-900 text-center text-xs font-semibold py-2 px-4 flex items-center justify-center gap-4">
+  <span>You are impersonating {{ request.user.email }}</span>
+  <form method="post" action="{{ url('control:stop_impersonate') }}" class="inline">
+    {{ csrf_input(request) }}
+    <button type="submit" class="underline hover:no-underline">Exit impersonation</button>
+  </form>
+</div>
+{% endif %}
+
 <!-- Navbar -->
 {% include 'components/navbar.jinja' %}
 

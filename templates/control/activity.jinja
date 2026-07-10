@@ -1,0 +1,14 @@
+{% extends "control/base_control.jinja" %}
+
+{% block title %}Activity Log{% endblock %}
+{% block page_title %}Activity Log{% endblock %}
+{% block page_subtitle %}Superuser only — recent admin actions{% endblock %}
+
+{% block content %}
+<div class="ctrl-card p-5"
+     hx-get="{{ url('control:activity') }}"
+     hx-trigger="every 30s"
+     hx-swap="innerHTML">
+  {% include "control/partials/_activity_feed.jinja" %}
+</div>
+{% endblock %}

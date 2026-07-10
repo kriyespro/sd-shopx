@@ -9,6 +9,34 @@ SLUG_ALIASES = {
     'toi-et-moi': 'toi-et-moi-rings',
 }
 
+# Core store categories (must never 404 — created on first visit if missing)
+CATALOG_CATEGORIES = {
+    'engagement-rings': {
+        'name': 'Engagement Rings',
+        'description': 'Our finest IGI/GIA certified lab-grown diamond engagement rings. Each ring is crafted to perfection.',
+    },
+    'toi-et-moi-rings': {
+        'name': 'Toi Et Moi Rings',
+        'description': 'Two-stone rings symbolizing two souls coming together. A romantic and modern design.',
+    },
+    'lab-grown-diamonds': {
+        'name': 'Lab-Grown Diamonds',
+        'description': 'Loose IGI certified lab-grown diamonds in all shapes and sizes. Ethically sourced, chemically identical.',
+    },
+    'necklaces': {
+        'name': 'Necklaces',
+        'description': 'Elegant diamond necklaces and pendants crafted in 18k gold and platinum.',
+    },
+    'earrings': {
+        'name': 'Earrings',
+        'description': 'From diamond studs to elaborate drops — our earring collection is timeless.',
+    },
+    'bracelets': {
+        'name': 'Bracelets',
+        'description': 'Delicate diamond tennis bracelets and bangles for every occasion.',
+    },
+}
+
 # Style and grouped collections backed by keyword filters (no extra DB rows required)
 STYLE_COLLECTIONS = {
     'solitaire-rings': {
@@ -86,12 +114,40 @@ def _virtual_category(slug, config):
     )
 
 
+def ensure_catalog_category(slug):
+    """Get or create a core catalog category so nav links never 404 on empty DBs."""
+    meta = CATALOG_CATEGORIES.get(slug)
+    if not meta:
+        return None
+    category, _ = Category.objects.get_or_create(
+        slug=slug,
+        defaults={
+            'name': meta['name'],
+            'description': meta['description'],
+            'is_active': True,
+        },
+    )
+    if not category.is_active:
+        category.is_active = True
+        category.save(update_fields=['is_active'])
+    return category
+
+
+def ensure_catalog_categories():
+    """Create all core categories if missing. Safe to call repeatedly."""
+    return [ensure_catalog_category(slug) for slug in CATALOG_CATEGORIES]
+
+
 def _style_products(config):
     if 'category_slugs' in config:
+        for slug in config['category_slugs']:
+            ensure_catalog_category(slug)
         categories = Category.objects.filter(slug__in=config['category_slugs'], is_active=True)
         return Product.objects.filter(category__in=categories, is_active=True).prefetch_related('images')
 
-    parent = Category.objects.filter(slug=config['parent_slug'], is_active=True).first()
+    parent = ensure_catalog_category(config['parent_slug']) or Category.objects.filter(
+        slug=config['parent_slug'], is_active=True
+    ).first()
     if not parent:
         return Product.objects.none()
 
@@ -113,6 +169,9 @@ def resolve_collection(slug, sort='newest'):
     slug = SLUG_ALIASES.get(slug, slug)
 
     category = Category.objects.filter(slug=slug, is_active=True).first()
+    if not category and slug in CATALOG_CATEGORIES:
+        category = ensure_catalog_category(slug)
+
     if category:
         products = Product.objects.filter(
             category_id__in=_category_product_ids(category),

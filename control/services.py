@@ -138,6 +138,8 @@ def get_inventory_list(low_stock_only=False):
 
 def ban_user(user_id, admin_user, request=None):
     user = User.objects.get(pk=user_id)
+    if user.is_superuser:
+        raise ValueError('Cannot ban a superuser.')
     user.is_active = False
     user.save()
     log_action(admin_user, 'ban', 'User', user.id, f"Banned user {user.email}", request)
@@ -150,6 +152,54 @@ def unban_user(user_id, admin_user, request=None):
     user.save()
     log_action(admin_user, 'unban', 'User', user.id, f"Unbanned user {user.email}", request)
     return user
+
+
+def assign_user_role(user_id, role, admin_user, request=None):
+    from users.models import ROLE_CUSTOMER, ROLE_STORE_MANAGER, UserProfile
+
+    if role not in (ROLE_CUSTOMER, ROLE_STORE_MANAGER):
+        raise ValueError('Invalid role.')
+    user = User.objects.get(pk=user_id)
+    if user.is_superuser:
+        raise ValueError('Cannot change role of a superuser.')
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    old = profile.role
+    profile.role = role
+    profile.save(update_fields=['role'])
+    profile.sync_staff_flag()
+    log_action(
+        admin_user, 'update', 'User', user.id,
+        f"Role for {user.email}: {old} → {role}", request,
+    )
+    return profile
+
+
+def start_impersonation(request, target_user_id, admin_user):
+    target = User.objects.get(pk=target_user_id)
+    if target.is_superuser or target.is_staff:
+        raise ValueError('Cannot impersonate staff or superusers.')
+    from control.permissions import IMPERSONATOR_SESSION_KEY
+    request.session[IMPERSONATOR_SESSION_KEY] = admin_user.pk
+    log_action(
+        admin_user, 'impersonate', 'User', target.pk,
+        f"Started impersonating {target.email}", request,
+    )
+    return target
+
+
+def stop_impersonation(request):
+    from control.permissions import IMPERSONATOR_SESSION_KEY
+    from django.contrib.auth import login
+    from django.contrib.auth.models import User
+
+    admin_id = request.session.pop(IMPERSONATOR_SESSION_KEY, None)
+    if not admin_id:
+        return None
+    admin = User.objects.filter(pk=admin_id, is_superuser=True).first()
+    if admin:
+        login(request, admin, backend='django.contrib.auth.backends.ModelBackend')
+        log_action(admin, 'impersonate', 'User', admin.pk, 'Stopped impersonation', request)
+    return admin
 
 
 def update_order_status(order_id, new_status, admin_user, request=None):

@@ -1,23 +1,6 @@
-# This goes on the VPS HOST's nginx (the one already serving another site
-# on 80/443), NOT inside this repo's Docker setup. Typical location:
-#   /etc/nginx/sites-available/mnxstore.com  (then symlink into sites-enabled)
-# Adjust the path if this host uses a different layout (e.g. conf.d/).
-#
-# mnxstore.com is proxied through Cloudflare in Full (strict) mode, which
-# requires a valid HTTPS listener on this origin's port 443. Since this box's
-# certbot doesn't have the nginx plugin installed and it's unclear how the
-# other vhosts here get their certs, this uses a Cloudflare Origin
-# Certificate instead — no port-80 challenge needed, and Cloudflare trusts
-# it directly for Full (strict):
-#
-#   Cloudflare dashboard -> mnxstore.com -> SSL/TLS -> Origin Server
-#   -> Create Certificate (hostnames: mnxstore.com, www.mnxstore.com,
-#      validity: 15 years). Save the two PEM blocks it gives you, then:
-#
-#   sudo mkdir -p /etc/nginx/ssl/mnxstore
-#   sudo nano /etc/nginx/ssl/mnxstore/cert.pem   # paste "Origin Certificate"
-#   sudo nano /etc/nginx/ssl/mnxstore/key.pem    # paste "Private Key"
-#   sudo chmod 600 /etc/nginx/ssl/mnxstore/key.pem
+# /etc/nginx/sites-available/mnxstore.com
+# Host nginx -> Docker app on 127.0.0.1:8089
+# SSL: Cloudflare Origin Certificate (Full strict)
 
 server {
     listen 80;
@@ -29,7 +12,7 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Proto https;
     }
 }
 
@@ -46,6 +29,6 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Proto https;
     }
 }

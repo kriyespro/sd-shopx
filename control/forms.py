@@ -94,3 +94,13 @@ class RefundStatusForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'class': 'ctrl-input', 'rows': 2}),
             'processed_at': forms.DateTimeInput(attrs={'class': 'ctrl-input', 'type': 'datetime-local'}),
         }
+
+
+class UserRoleForm(forms.Form):
+    role = forms.ChoiceField(
+        choices=[
+            ('customer', 'Customer'),
+            ('store_manager', 'Store Manager'),
+        ],
+        widget=forms.Select(attrs={'class': 'ctrl-select'}),
+    )

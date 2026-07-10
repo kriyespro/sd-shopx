@@ -1,11 +1,29 @@
 # Test Users for Development
 
-## Admin / Superuser
-- **URL**: http://127.0.0.1:8000/sd/
+## Superuser (full Mission Control)
+- **Mission Control**: http://127.0.0.1:8000/admin/
+- **Login**: http://127.0.0.1:8000/admin/login/
+- **Django ORM admin**: http://127.0.0.1:8000/sd/
 - **Username**: admin
 - **Password**: Admin@1234
 
-## Test Users
+## Store Manager (ops Mission Control — no Users / Ban / Roles / Impersonate)
+- **Email (username)**: manager@mnxstore.com
+- **Password**: Manager@1234
+- **Name**: Store Manager
+- **Access**: Catalog, Orders, Payments, Inventory, Reviews, Customers (view)
+- **Create after migrate** (if missing):
+  ```
+  python manage.py shell -c "
+  from django.contrib.auth.models import User
+  from users.models import UserProfile, ROLE_STORE_MANAGER
+  u, _ = User.objects.get_or_create(username='manager@mnxstore.com', defaults={'email':'manager@mnxstore.com','first_name':'Store','last_name':'Manager','is_staff':True})
+  u.set_password('Manager@1234'); u.is_staff=True; u.save()
+  p, _ = UserProfile.objects.get_or_create(user=u); p.role=ROLE_STORE_MANAGER; p.save(); p.sync_staff_flag()
+  "
+  ```
+
+## Customers (storefront only — /accounts/dashboard/)
 ### User 1
 - **Email (username)**: test@mnxstore.com
 - **Password**: Test@1234

@@ -4,16 +4,26 @@
 {% block page_subtitle %}Customer profile &amp; order history{% endblock %}
 
 {% block topbar_actions %}
-  {% if target_user.is_active %}
-    <form method="post" action="{{ url('control:ban_user', pk=target_user.pk) }}">
-      {{ csrf_input }}
+  {% if is_control_superuser %}
+    {% if can_impersonate %}
+    <form method="post" action="{{ url('control:impersonate_user', pk=target_user.pk) }}">
+      {{ csrf_input(request) }}
+      <button class="ctrl-btn ctrl-btn-gold text-xs">Impersonate</button>
+    </form>
+    {% endif %}
+    {% if target_user.is_active %}
+    <form method="post" action="{{ url('control:ban_user', pk=target_user.pk) }}" onsubmit="return confirm('Ban this customer?')">
+      {{ csrf_input(request) }}
+      <input type="hidden" name="next" value="{{ url('control:customer_detail', pk=target_user.pk) }}">
       <button class="ctrl-btn ctrl-btn-red text-xs">Ban Customer</button>
     </form>
-  {% else %}
+    {% else %}
     <form method="post" action="{{ url('control:unban_user', pk=target_user.pk) }}">
-      {{ csrf_input }}
+      {{ csrf_input(request) }}
+      <input type="hidden" name="next" value="{{ url('control:customer_detail', pk=target_user.pk) }}">
       <button class="ctrl-btn ctrl-btn-gray text-xs">Unban Customer</button>
     </form>
+    {% endif %}
   {% endif %}
 {% endblock %}
 

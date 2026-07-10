@@ -1,23 +1,67 @@
-from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils.decorators import method_decorator
 from django.views import View
 from django.contrib import messages
 from django.views.decorators.http import require_POST
+from django.contrib.auth import login as auth_login
 from products.models import Product, Category, ProductImage
 from products.models import Review
 from orders.models import Order, Payment, Refund
 from .models import AdminLog
 from . import services
-from .forms import (ProductForm, CategoryForm, ProductImageForm,
-                    OrderStatusForm, PaymentForm, RefundForm, RefundStatusForm)
+from .forms import (
+    ProductForm, CategoryForm, ProductImageForm,
+    OrderStatusForm, PaymentForm, RefundForm, RefundStatusForm, UserRoleForm,
+)
+from .permissions import (
+    ControlAccessMixin, SuperuserRequiredMixin,
+    control_required, superuser_required,
+    can_access_control, is_superuser_role, get_or_create_profile,
+    role_display_label, CONTROL_LOGIN_URL,
+)
+from users.models import ROLE_CUSTOMER, ROLE_STORE_MANAGER
 
 
-class ControlAccessMixin:
-    @method_decorator(staff_member_required(login_url='/sd/login/'))
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+# ── Auth ───────────────────────────────────────────────────────────────────────
+
+class ControlLoginView(View):
+    def get(self, request):
+        if request.user.is_authenticated and can_access_control(request.user):
+            return redirect('control:dashboard')
+        return render(request, 'control/login.jinja', {})
+
+    def post(self, request):
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        # Try as username first (covers admin / non-email usernames)
+        user = authenticate(request, username=email, password=password)
+        if user is None:
+            match = User.objects.filter(email__iexact=email).first()
+            if match:
+                user = authenticate(request, username=match.username, password=password)
+        if not user:
+            messages.error(request, 'Invalid email or password.')
+            return render(request, 'control/login.jinja', {'email': email})
+        if not can_access_control(user):
+            messages.error(request, 'Mission Control is for staff only. Use your customer account instead.')
+            return render(request, 'control/login.jinja', {'email': email})
+        login(request, user)
+        next_url = request.GET.get('next') or request.POST.get('next') or ''
+        if next_url.startswith('/admin/'):
+            return redirect(next_url)
+        return redirect('control:dashboard')
+
+
+@require_POST
+def control_logout(request):
+    logout(request)
+    return redirect('control:login')
+
+
+def control_logout_get(request):
+    logout(request)
+    return redirect('control:login')
 
 
 # ── Dashboard ──────────────────────────────────────────────────────────────────
@@ -27,12 +71,15 @@ class DashboardView(ControlAccessMixin, View):
         stats = services.get_dashboard_stats()
         recent_orders = services.get_recent_orders(5)
         recent_users = services.get_recent_signups(5)
-        recent_logs = AdminLog.objects.select_related('admin')[:10]
+        recent_logs = []
+        if is_superuser_role(request.user):
+            recent_logs = AdminLog.objects.select_related('admin')[:10]
         return render(request, 'control/dashboard.jinja', {
             'stats': stats,
             'recent_orders': recent_orders,
             'recent_users': recent_users,
             'recent_logs': recent_logs,
+            'is_control_superuser': is_superuser_role(request.user),
         })
 
 
@@ -42,15 +89,17 @@ class StatsCardView(ControlAccessMixin, View):
         return render(request, 'control/partials/_stats_card.jinja', {'stats': stats})
 
 
-class ActivityFeedView(ControlAccessMixin, View):
+class ActivityFeedView(SuperuserRequiredMixin, View):
     def get(self, request):
-        logs = AdminLog.objects.select_related('admin')[:20]
-        return render(request, 'control/partials/_activity_feed.jinja', {'logs': logs})
+        logs = AdminLog.objects.select_related('admin')[:50]
+        if request.headers.get('HX-Request'):
+            return render(request, 'control/partials/_activity_feed.jinja', {'logs': logs})
+        return render(request, 'control/activity.jinja', {'logs': logs})
 
 
 # ── Users / Customers ──────────────────────────────────────────────────────────
 
-class UserListView(ControlAccessMixin, View):
+class UserListView(SuperuserRequiredMixin, View):
     def get(self, request):
         q = request.GET.get('q', '')
         users = User.objects.select_related('profile').order_by('-date_joined')
@@ -63,15 +112,22 @@ class UserListView(ControlAccessMixin, View):
         return render(request, 'control/users.jinja', {'users': users, 'q': q})
 
 
-class UserDetailView(ControlAccessMixin, View):
+class UserDetailView(SuperuserRequiredMixin, View):
     def get(self, request, pk):
         user = get_object_or_404(User, pk=pk)
         orders = Order.objects.filter(user=user).prefetch_related('items').order_by('-created_at')
         cstats = services.get_customer_stats(user)
+        profile = get_or_create_profile(user)
+        role_form = UserRoleForm(initial={
+            'role': profile.role if profile and not user.is_superuser else ROLE_CUSTOMER,
+        })
         return render(request, 'control/user_detail.jinja', {
             'target_user': user,
             'orders': orders,
             'cstats': cstats,
+            'profile': profile,
+            'role_form': role_form,
+            'role_label': role_display_label(user),
         })
 
 
@@ -95,23 +151,89 @@ class CustomerDetailView(ControlAccessMixin, View):
             'orders': orders,
             'cstats': cstats,
             'wishlist': wishlist,
+            'can_impersonate': is_superuser_role(request.user) and not user.is_staff and not user.is_superuser,
         })
 
 
-@staff_member_required(login_url='/sd/login/')
+def _admin_redirect_after_user_action(request, pk):
+    next_url = request.POST.get('next', '')
+    if next_url.startswith('/admin/'):
+        return redirect(next_url)
+    return redirect('control:user_detail', pk=pk)
+
+
+@superuser_required
 @require_POST
 def ban_user(request, pk):
-    services.ban_user(pk, request.user, request)
-    messages.success(request, 'User banned.')
-    return redirect('control:users')
+    try:
+        services.ban_user(pk, request.user, request)
+        messages.success(request, 'User banned.')
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return _admin_redirect_after_user_action(request, pk)
 
 
-@staff_member_required(login_url='/sd/login/')
+@superuser_required
 @require_POST
 def unban_user(request, pk):
     services.unban_user(pk, request.user, request)
     messages.success(request, 'User unbanned.')
-    return redirect('control:users')
+    return _admin_redirect_after_user_action(request, pk)
+
+
+@superuser_required
+@require_POST
+def assign_role(request, pk):
+    form = UserRoleForm(request.POST)
+    if form.is_valid():
+        try:
+            services.assign_user_role(pk, form.cleaned_data['role'], request.user, request)
+            messages.success(request, 'Role updated.')
+        except ValueError as exc:
+            messages.error(request, str(exc))
+    return redirect('control:user_detail', pk=pk)
+
+
+@superuser_required
+@require_POST
+def impersonate_user(request, pk):
+    from control.permissions import IMPERSONATOR_SESSION_KEY
+    admin = request.user
+    try:
+        target = User.objects.get(pk=pk)
+        if target.is_superuser or target.is_staff:
+            raise ValueError('Cannot impersonate staff or superusers.')
+        admin_id = admin.pk
+        services.log_action(
+            admin, 'impersonate', 'User', target.pk,
+            f"Started impersonating {target.email}", request,
+        )
+        auth_login(request, target, backend='django.contrib.auth.backends.ModelBackend')
+        request.session[IMPERSONATOR_SESSION_KEY] = admin_id
+        messages.success(request, f'Now viewing as {target.email}.')
+        return redirect('users:dashboard')
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('control:customers')
+    except ValueError as exc:
+        messages.error(request, str(exc))
+        return redirect('control:customer_detail', pk=pk)
+
+
+@require_POST
+def stop_impersonate(request):
+    """Must work while session user is the impersonated customer (not staff)."""
+    from control.permissions import IMPERSONATOR_SESSION_KEY
+
+    if not request.session.get(IMPERSONATOR_SESSION_KEY):
+        messages.error(request, 'No active impersonation.')
+        return redirect('core:home')
+    admin = services.stop_impersonation(request)
+    if admin:
+        messages.success(request, 'Impersonation ended.')
+        return redirect('control:dashboard')
+    messages.error(request, 'No active impersonation.')
+    return redirect('core:home')
 
 
 # ── Products ───────────────────────────────────────────────────────────────────
@@ -196,7 +318,7 @@ class ProductImageUploadView(ControlAccessMixin, View):
         return redirect('control:product_edit', pk=pk)
 
 
-@staff_member_required(login_url='/sd/login/')
+@control_required
 @require_POST
 def toggle_product_status(request, pk):
     field = request.POST.get('field', 'is_active')
@@ -208,7 +330,7 @@ def toggle_product_status(request, pk):
     return redirect('control:products')
 
 
-@staff_member_required(login_url='/sd/login/')
+@control_required
 @require_POST
 def delete_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
@@ -219,7 +341,7 @@ def delete_product(request, pk):
     return redirect('control:products')
 
 
-@staff_member_required(login_url='/sd/login/')
+@control_required
 @require_POST
 def delete_product_image(request, pk):
     img = get_object_or_404(ProductImage, pk=pk)
@@ -271,7 +393,7 @@ class CategoryEditView(ControlAccessMixin, View):
         return render(request, 'control/category_edit.jinja', {'form': form, 'category': cat})
 
 
-@staff_member_required(login_url='/sd/login/')
+@control_required
 @require_POST
 def delete_category(request, pk):
     cat = get_object_or_404(Category, pk=pk)
@@ -474,7 +596,7 @@ class ReviewListView(ControlAccessMixin, View):
         })
 
 
-@staff_member_required(login_url='/sd/login/')
+@control_required
 @require_POST
 def toggle_review(request, pk):
     review = get_object_or_404(Review, pk=pk)
@@ -487,7 +609,7 @@ def toggle_review(request, pk):
     return redirect('control:reviews')
 
 
-@staff_member_required(login_url='/sd/login/')
+@control_required
 @require_POST
 def delete_review(request, pk):
     review = get_object_or_404(Review, pk=pk)

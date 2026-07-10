@@ -4,15 +4,21 @@ from . import views
 app_name = 'control'
 
 urlpatterns = [
+    path('login/', views.ControlLoginView.as_view(), name='login'),
+    path('logout/', views.control_logout_get, name='logout'),
+
     path('', views.DashboardView.as_view(), name='dashboard'),
     path('stats/', views.StatsCardView.as_view(), name='stats'),
     path('activity/', views.ActivityFeedView.as_view(), name='activity'),
 
-    # Staff users
+    # Staff users (superuser only)
     path('users/', views.UserListView.as_view(), name='users'),
     path('users/<int:pk>/', views.UserDetailView.as_view(), name='user_detail'),
     path('users/<int:pk>/ban/', views.ban_user, name='ban_user'),
     path('users/<int:pk>/unban/', views.unban_user, name='unban_user'),
+    path('users/<int:pk>/role/', views.assign_role, name='assign_role'),
+    path('users/<int:pk>/impersonate/', views.impersonate_user, name='impersonate_user'),
+    path('stop-impersonate/', views.stop_impersonate, name='stop_impersonate'),
 
     # Customers (buyers)
     path('customers/', views.CustomerListView.as_view(), name='customers'),

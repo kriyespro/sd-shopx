@@ -21,13 +21,13 @@
             hx-post="{{ url('control:review_toggle', pk=review.pk) }}"
             hx-target="#review-{{ review.pk }}"
             hx-swap="outerHTML">
-        {{ csrf_input }}
+        {{ csrf_input(request) }}
         <button class="ctrl-btn {% if review.is_approved %}ctrl-btn-gray{% else %}ctrl-btn-gold{% endif %} text-xs">
           {% if review.is_approved %}Reject{% else %}Approve{% endif %}
         </button>
       </form>
       <form method="post" action="{{ url('control:review_delete', pk=review.pk) }}">
-        {{ csrf_input }}
+        {{ csrf_input(request) }}
         <button class="ctrl-btn ctrl-btn-red text-xs"
                 onclick="return confirm('Delete this review?')">Delete</button>
       </form>

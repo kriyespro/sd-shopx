@@ -1,0 +1,57 @@
+{% extends "base.jinja" %}
+
+{% block title %}Order {{ order.order_number }} — {{ site_brand }}{% endblock %}
+
+{% block content %}
+<div class="page-bg min-h-screen py-10">
+  <div class="max-w-3xl mx-auto px-6">
+    <a href="{{ url('users:dashboard') }}" class="text-sm text-navy-600 hover:text-navy-800 mb-6 inline-block">&larr; Back to account</a>
+
+    <div class="bg-white border border-gray-100 shadow-sm p-6 md:p-8">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8 pb-6 border-b border-gray-100">
+        <div>
+          <h1 class="font-serif text-2xl text-navy-800">Order {{ order.order_number }}</h1>
+          <p class="text-xs text-gray-400 mt-1">Placed {{ order.created_at.strftime('%d %b %Y') }}</p>
+        </div>
+        <span class="text-xs px-2.5 py-1 capitalize font-medium self-start
+          {% if order.status == 'delivered' %}bg-green-100 text-green-700
+          {% elif order.status == 'cancelled' or order.status == 'refunded' %}bg-red-100 text-red-700
+          {% else %}bg-amber-100 text-amber-700{% endif %}">
+          {{ order.get_status_display() }}
+        </span>
+      </div>
+
+      <div class="space-y-3 mb-8">
+        {% for item in order.items.all() %}
+        <div class="flex justify-between gap-4 text-sm border-b border-gray-50 pb-3">
+          <div>
+            <p class="font-medium text-gray-900">{{ item.product_name }}</p>
+            <p class="text-xs text-gray-400 mt-0.5">Qty {{ item.quantity }}{% if item.metal_type %} · {{ item.metal_type }}{% endif %}</p>
+          </div>
+          <p class="font-medium text-gray-900 whitespace-nowrap">Rs. {{ "{:,.2f}".format(item.total_price or 0) }}</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="bg-gray-50 border border-gray-100 p-4 space-y-2 text-sm mb-8">
+        <div class="flex justify-between"><span class="text-gray-500">Subtotal</span><span>Rs. {{ "{:,.2f}".format(order.subtotal) }}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Shipping</span><span>Rs. {{ "{:,.2f}".format(order.shipping_cost) }}</span></div>
+        <div class="flex justify-between font-semibold text-navy-800 pt-2 border-t border-gray-200">
+          <span>Total</span><span>Rs. {{ "{:,.2f}".format(order.total) }}</span>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-xs tracking-wider uppercase text-gray-500 mb-2">Shipping address</h2>
+        <p class="text-sm text-gray-700 leading-relaxed">
+          {{ order.first_name }} {{ order.last_name }}<br>
+          {{ order.address_line1 }}{% if order.address_line2 %}, {{ order.address_line2 }}{% endif %}<br>
+          {{ order.city }}, {{ order.state }} {{ order.pincode }}<br>
+          {{ order.country }}
+          {% if order.phone %}<br>{{ order.phone }}{% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -33,6 +33,8 @@
 [DONE] Full project audit — cart ghost-item prune, drawer remove HTMX, navbar cart count OOB updates
 [DONE] Wishlist unauth → HX-Redirect login; login next URL validated; cart template product checks fixed
 [DONE] End-to-end flow verified: storefront, collections, cart, checkout, /sd admin, /admin control (37 checks)
+[DONE] Live 404 fix — production DB had 0 products/categories; resolve_collection now
+  auto-creates core catalog categories; seed_data uses slug-based get_or_create
 [IN PROGRESS] Phase 4 — Payment integration, email notifications, SEO
 [DONE] Full audit pass — bug/security/perf fixes:
   - Fixed overselling: Cart.add() clamps to Product.stock; checkout now runs
@@ -78,3 +80,17 @@ NEXT STEP (needs user confirmation): run `python manage.py migrate core` to
 create the SiteSettings table — site works fine without it (falls back to
 settings.py values) but /sd/core/sitesettings/ won't actually save anything
 until it's applied.
+
+[DONE] Mission Control roles (Superuser + Store Manager):
+  - UserProfile.role (customer | store_manager) + users/migrations/0002
+    (applied locally; run migrate on prod when ready)
+  - control/permissions.py: can_access_control, SuperuserRequiredMixin,
+    login URL /admin/login/
+  - Mission Control login/logout (Jinja dark theme); customers redirected
+    to /accounts/dashboard/
+  - Role-aware sidebar (Users/Activity/Settings = superuser only) + badge
+  - Superuser: assign role, ban, impersonate, activity log
+  - Store Manager: catalog/orders/payments/inventory/reviews/customers view
+  - Customer portal: order detail, profile edit, MC link for staff
+  - Seeded manager@mnxstore.com / Manager@1234 — see test_user.txt
+

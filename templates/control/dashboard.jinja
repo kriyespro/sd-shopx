@@ -72,13 +72,15 @@
       </div>
     </div>
 
-    <!-- Activity Feed -->
+    <!-- Activity Feed (superuser only) -->
+    {% if is_control_superuser %}
     <div class="ctrl-card p-5"
          hx-get="{{ url('control:activity') }}"
          hx-trigger="every 30s"
          hx-swap="innerHTML">
       {% include "control/partials/_activity_feed.jinja" %}
     </div>
+    {% endif %}
   </div>
 
 </div>

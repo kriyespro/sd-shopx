@@ -1,0 +1,64 @@
+{% extends "base.jinja" %}
+
+{% block title %}Edit Profile — {{ site_brand }}{% endblock %}
+
+{% block content %}
+<div class="page-bg min-h-screen py-10">
+  <div class="max-w-xl mx-auto px-6">
+    <a href="{{ url('users:dashboard') }}" class="text-sm text-navy-600 hover:text-navy-800 mb-6 inline-block">&larr; Back to account</a>
+
+    <div class="bg-white border border-gray-100 shadow-sm p-6 md:p-8">
+      <h1 class="font-serif text-2xl text-navy-800 mb-6">Edit Profile</h1>
+
+      <form method="post" class="space-y-4">
+        {{ csrf_input(request) }}
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs tracking-wider uppercase text-gray-500 mb-1.5">First name</label>
+            {{ form.first_name }}
+          </div>
+          <div>
+            <label class="block text-xs tracking-wider uppercase text-gray-500 mb-1.5">Last name</label>
+            {{ form.last_name }}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs tracking-wider uppercase text-gray-500 mb-1.5">Phone</label>
+          {{ form.phone }}
+        </div>
+
+        <div>
+          <label class="block text-xs tracking-wider uppercase text-gray-500 mb-1.5">Address</label>
+          {{ form.address_line1 }}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs tracking-wider uppercase text-gray-500 mb-1.5">City</label>
+            {{ form.city }}
+          </div>
+          <div>
+            <label class="block text-xs tracking-wider uppercase text-gray-500 mb-1.5">State</label>
+            {{ form.state }}
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs tracking-wider uppercase text-gray-500 mb-1.5">Country</label>
+            {{ form.country }}
+          </div>
+          <div>
+            <label class="block text-xs tracking-wider uppercase text-gray-500 mb-1.5">Pincode</label>
+            {{ form.pincode }}
+          </div>
+        </div>
+
+        <button type="submit" class="btn-navy w-full sm:w-auto mt-2">Save changes</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

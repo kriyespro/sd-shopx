@@ -45,7 +45,7 @@
                 hx-post="{{ url('control:product_toggle', pk=product.pk) }}"
                 hx-target="#toggle-active-{{ product.pk }}"
                 hx-swap="outerHTML">
-            {{ csrf_input }}
+            {{ csrf_input(request) }}
             <input type="hidden" name="field" value="is_active">
             <button id="toggle-active-{{ product.pk }}" type="submit"
                     class="w-10 h-5 rounded-full transition-colors {% if product.is_active %}bg-green-500{% else %}bg-gray-600{% endif %} relative focus:outline-none">
@@ -58,7 +58,7 @@
                 hx-post="{{ url('control:product_toggle', pk=product.pk) }}"
                 hx-target="#toggle-featured-{{ product.pk }}"
                 hx-swap="outerHTML">
-            {{ csrf_input }}
+            {{ csrf_input(request) }}
             <input type="hidden" name="field" value="is_featured">
             <button id="toggle-featured-{{ product.pk }}" type="submit"
                     class="w-10 h-5 rounded-full transition-colors {% if product.is_featured %}bg-gold-500{% else %}bg-gray-600{% endif %} relative focus:outline-none">
@@ -71,7 +71,7 @@
                 hx-post="{{ url('control:product_toggle', pk=product.pk) }}"
                 hx-target="#toggle-new-{{ product.pk }}"
                 hx-swap="outerHTML">
-            {{ csrf_input }}
+            {{ csrf_input(request) }}
             <input type="hidden" name="field" value="is_new_arrival">
             <button id="toggle-new-{{ product.pk }}" type="submit"
                     class="w-10 h-5 rounded-full transition-colors {% if product.is_new_arrival %}bg-blue-500{% else %}bg-gray-600{% endif %} relative focus:outline-none">
@@ -86,7 +86,7 @@
                 hx-target="#stock-{{ product.pk }}"
                 hx-swap="innerHTML"
                 class="flex items-center gap-1 justify-center">
-            {{ csrf_input }}
+            {{ csrf_input(request) }}
             <input type="hidden" name="product_id" value="{{ product.pk }}">
             <input type="number" name="stock" value="{{ product.stock }}" min="0"
                    class="w-16 text-center text-xs bg-gray-800 border border-gray-700 rounded px-1 py-1 text-white">

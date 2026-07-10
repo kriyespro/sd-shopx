@@ -8,8 +8,11 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from .models import UserProfile, Wishlist
+from .forms import ProfileEditForm
+from . import services
 from products.models import Product
 from orders.models import Order
+from control.permissions import can_access_control
 
 
 def register(request):
@@ -67,7 +70,28 @@ def dashboard(request):
     return render(request, 'users/dashboard.jinja', {
         'orders': orders,
         'wishlist': wishlist,
+        'show_mission_control_link': can_access_control(request.user),
     })
+
+
+@login_required
+def order_detail(request, order_number):
+    order = services.get_user_order(request.user, order_number)
+    return render(request, 'users/order_detail.jinja', {'order': order})
+
+
+@login_required
+def profile_edit(request):
+    profile = services.get_or_create_profile(request.user)
+    if request.method == 'POST':
+        form = ProfileEditForm(request.POST, instance=profile, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated.')
+            return redirect('users:profile')
+    else:
+        form = ProfileEditForm(instance=profile, user=request.user)
+    return render(request, 'users/profile.jinja', {'form': form})
 
 
 @require_POST
