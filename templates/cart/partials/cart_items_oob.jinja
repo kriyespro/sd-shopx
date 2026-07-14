@@ -1,2 +1,7 @@
 {% include 'cart/partials/cart_items.jinja' %}
 <span id="cart-count" hx-swap-oob="innerHTML">{{ cart|length }}</span>
+{% set oob = true %}
+{% include 'cart/partials/cart_summary.jinja' %}
+<div id="cart-drawer" hx-swap-oob="innerHTML" class="flex flex-col h-full">
+  {% include 'cart/partials/cart_drawer_content.jinja' %}
+</div>

@@ -34,14 +34,15 @@
       </button>
       <div class="flex items-center border border-gray-200">
         <button hx-post="{{ url('cart:update', product_id=item.product.id) }}"
-                hx-vals='{"quantity": {{ [item.quantity - 1, 1]|max }}}'
+                hx-vals='{"quantity": {{ item.quantity - 1 }}}'
                 hx-target="#cart-items" hx-swap="innerHTML"
                 class="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-navy-700 hover:bg-gray-50 transition-colors text-sm">−</button>
         <span class="w-8 text-center text-sm text-gray-700">{{ item.quantity }}</span>
         <button hx-post="{{ url('cart:update', product_id=item.product.id) }}"
                 hx-vals='{"quantity": {{ item.quantity + 1 }}}'
                 hx-target="#cart-items" hx-swap="innerHTML"
-                class="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-navy-700 hover:bg-gray-50 transition-colors text-sm">+</button>
+                class="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-navy-700 hover:bg-gray-50 transition-colors text-sm"
+                {% if item.product.stock <= item.quantity %}disabled title="Max stock reached"{% endif %}>+</button>
       </div>
     </div>
   </div>

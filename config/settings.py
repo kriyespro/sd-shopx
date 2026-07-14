@@ -8,13 +8,16 @@ load_dotenv(BASE_DIR / '.env')
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-mnxstore-dev-secret-key-change-in-prod')
 
-SITE_BRAND = 'MnxStore'
+SITE_BRAND = 'Mnxworld'
 SITE_EMAIL = 'hello@mnxstore.com'
-SITE_TAGLINE = 'IGI/GIA Certified Lab-Grown Diamond Jewelry'
+SITE_TAGLINE = 'Shop More. Save More. Live Better.'
 DEFAULT_PRODUCT_IMAGE = (
     'https://images.unsplash.com/photo-1605100804763-247f67b3557e'
     '?w=600&q=80&fit=crop&crop=center'
 )
+DEFAULT_SITE_LOGO = 'images/mnxworld-logo-nav.png'
+DEFAULT_SITE_LOGO_FULL = 'images/mnxworld-logo.png'
+DEFAULT_SITE_MARK = 'images/mnxworld-mark.png'
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 

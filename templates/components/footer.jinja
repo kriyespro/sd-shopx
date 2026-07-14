@@ -24,17 +24,12 @@
     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10">
       <!-- Brand Column -->
       <div class="col-span-2 lg:col-span-1">
-        <a href="{{ url('core:home') }}" class="flex flex-col items-start mb-4">
-          {% if site_settings.logo %}
-          <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" class="h-8 mb-1 object-contain">
-          {% else %}
-          <div class="flex items-center gap-1 mb-1">
-            <svg class="w-3 h-3 text-gold-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-            <svg class="w-4 h-4 text-gold-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-            <svg class="w-3 h-3 text-gold-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-          </div>
-          <span class="font-serif text-xl tracking-[0.12em] uppercase text-white">{{ site_settings.site_name }}</span>
-          {% endif %}
+        <a href="{{ url('core:home') }}" class="inline-flex flex-col items-start mb-4">
+          <span class="inline-flex bg-white rounded-lg px-3 py-2">
+            <img src="{{ default_site_logo_full }}"
+                 alt="{{ site_settings.site_name or site_brand }}"
+                 class="h-14 w-auto max-w-[160px] object-contain">
+          </span>
         </a>
         <p class="text-sm text-gray-400 leading-relaxed">Crafting timeless, IGI/GIA certified lab-grown diamond jewelry since 2018. Ethical, sustainable, beautiful.</p>
         <!-- Social Icons -->

@@ -37,7 +37,7 @@
           <td class="py-2.5 text-gray-200">₹{{ order.total }}</td>
           <td class="py-2.5">
             {% set sc = {'pending': 'bg-yellow-900/50 text-yellow-300', 'confirmed': 'bg-blue-900/50 text-blue-300', 'shipped': 'bg-purple-900/50 text-purple-300', 'delivered': 'bg-green-900/50 text-green-300', 'cancelled': 'bg-red-900/50 text-red-300'} %}
-            <span class="badge {{ sc.get(order.status, 'bg-gray-700 text-gray-300') }}">{{ order.status }}</span>
+            <span class="badge {{ sc.get(order.status, 'bg-gray-700 text-gray-300') }}">{{ order.get_status_display() }}</span>
           </td>
         </tr>
         {% else %}
@@ -78,7 +78,9 @@
          hx-get="{{ url('control:activity') }}"
          hx-trigger="every 30s"
          hx-swap="innerHTML">
+      {% with logs=recent_logs %}
       {% include "control/partials/_activity_feed.jinja" %}
+      {% endwith %}
     </div>
     {% endif %}
   </div>

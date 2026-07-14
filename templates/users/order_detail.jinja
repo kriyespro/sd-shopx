@@ -5,13 +5,13 @@
 {% block content %}
 <div class="page-bg min-h-screen py-10">
   <div class="max-w-3xl mx-auto px-6">
-    <a href="{{ url('users:dashboard') }}" class="text-sm text-navy-600 hover:text-navy-800 mb-6 inline-block">&larr; Back to account</a>
+    <a href="{{ url('users:order_list') }}" class="text-sm text-navy-600 hover:text-navy-800 mb-6 inline-block">&larr; Back to orders</a>
 
     <div class="bg-white border border-gray-100 shadow-sm p-6 md:p-8">
       <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8 pb-6 border-b border-gray-100">
         <div>
           <h1 class="font-serif text-2xl text-navy-800">Order {{ order.order_number }}</h1>
-          <p class="text-xs text-gray-400 mt-1">Placed {{ order.created_at.strftime('%d %b %Y') }}</p>
+          <p class="text-xs text-gray-400 mt-1">Placed {{ order.created_at.strftime('%d %b %Y at %H:%M') }}</p>
         </div>
         <span class="text-xs px-2.5 py-1 capitalize font-medium self-start
           {% if order.status == 'delivered' %}bg-green-100 text-green-700
@@ -21,12 +21,47 @@
         </span>
       </div>
 
+      <!-- Status timeline -->
+      <div class="mb-8">
+        <h2 class="text-xs tracking-wider uppercase text-gray-500 mb-4">Order Status</h2>
+        <ol class="relative border-l border-gray-200 ml-2 space-y-6">
+          {% for step in timeline %}
+          <li class="ml-6">
+            <span class="absolute -left-1.5 flex h-3 w-3 rounded-full
+              {% if step.state == 'done' %}bg-green-500
+              {% elif step.state == 'current' %}bg-gold-500 ring-4 ring-gold-100
+              {% else %}bg-gray-200{% endif %}"></span>
+            <p class="text-sm font-medium
+              {% if step.state == 'current' %}text-navy-800
+              {% elif step.state == 'done' %}text-gray-700
+              {% else %}text-gray-400{% endif %}">
+              {{ step.label }}
+              {% if step.state == 'current' %}<span class="text-xs text-gold-600 ml-1">(current)</span>{% endif %}
+            </p>
+            {% if step.date and step.state in ['done', 'current'] %}
+            <p class="text-xs text-gray-400 mt-0.5">{{ step.date.strftime('%d %b %Y') }}</p>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ol>
+      </div>
+
+      {% if payment %}
+      <div class="bg-gray-50 border border-gray-100 p-4 mb-8 text-sm">
+        <div class="flex justify-between">
+          <span class="text-gray-500">Payment</span>
+          <span class="font-medium capitalize">{{ payment.get_status_display() }}</span>
+        </div>
+      </div>
+      {% endif %}
+
       <div class="space-y-3 mb-8">
+        <h2 class="text-xs tracking-wider uppercase text-gray-500">Items</h2>
         {% for item in order.items.all() %}
         <div class="flex justify-between gap-4 text-sm border-b border-gray-50 pb-3">
           <div>
             <p class="font-medium text-gray-900">{{ item.product_name }}</p>
-            <p class="text-xs text-gray-400 mt-0.5">Qty {{ item.quantity }}{% if item.metal_type %} · {{ item.metal_type }}{% endif %}</p>
+            <p class="text-xs text-gray-400 mt-0.5">Qty {{ item.quantity }}{% if item.metal_type %} · {{ item.metal_type.replace('_', ' ').title() }}{% endif %}</p>
           </div>
           <p class="font-medium text-gray-900 whitespace-nowrap">Rs. {{ "{:,.2f}".format(item.total_price or 0) }}</p>
         </div>

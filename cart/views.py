@@ -20,11 +20,27 @@ def cart_add(request, product_id):
     quantity = parse_quantity(request.POST.get('quantity', 1))
     metal = request.POST.get('metal', '')
     ring_size = request.POST.get('ring_size', '')
-    cart.add(product=product, quantity=quantity, metal=metal, ring_size=ring_size)
+    result = cart.add(product=product, quantity=quantity, metal=metal, ring_size=ring_size)
+
+    if result.get('out_of_stock'):
+        msg = f'"{product.name}" is out of stock.'
+    elif result.get('clamped'):
+        msg = f'Only {result["quantity"]} of "{product.name}" available — cart updated.'
+    elif result.get('ok'):
+        msg = f'"{product.name}" added to cart.'
+    else:
+        msg = f'Could not add "{product.name}" to cart.'
 
     if request.headers.get('HX-Request'):
-        return render(request, 'cart/partials/cart_count.jinja', {'cart': cart})
-    messages.success(request, f'"{product.name}" added to cart.')
+        return render(request, 'cart/partials/cart_add_oob.jinja', {
+            'cart': cart,
+            'cart_message': msg,
+        })
+
+    if result.get('ok'):
+        messages.success(request, msg)
+    else:
+        messages.warning(request, msg)
     return redirect('cart:detail')
 
 
@@ -34,7 +50,12 @@ def cart_update(request, product_id):
     product = get_object_or_404(Product, id=product_id, is_active=True)
     quantity = parse_quantity(request.POST.get('quantity', 1), minimum=0)
     if quantity > 0:
-        cart.add(product=product, quantity=quantity, override_qty=True)
+        result = cart.add(product=product, quantity=quantity, override_qty=True)
+        if result.get('clamped') and not request.headers.get('HX-Request'):
+            messages.warning(
+                request,
+                f'Only {result["quantity"]} of "{product.name}" in stock.',
+            )
     else:
         cart.remove(product_id)
     if request.headers.get('HX-Request'):

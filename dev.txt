@@ -94,3 +94,35 @@ until it's applied.
   - Customer portal: order detail, profile edit, MC link for staff
   - Seeded manager@mnxstore.com / Manager@1234 — see test_user.txt
 
+[DONE] Cart UX fixes:
+  - Add-to-cart HTMX refreshes drawer out-of-band + toast message
+  - Drawer also refreshes on cart-opened (navbar / after add)
+  - Cart page Order Summary updates live via #cart-summary OOB
+  - PDP: Out of Stock button when stock=0; show stock count
+  - Silent stock clamp now surfaces a toast / Django message
+  - Minus to 0 removes item; plus disabled at max stock
+
+[DONE] Mission Control /admin/ UX fix:
+  - Mobile hamburger + slide-over nav (sidebar was hidden under lg)
+  - Main content no longer forces desktop margin on mobile
+  - Activity feed shows recent_logs on dashboard
+  - Stats HTMX poll no longer duplicates cards every 30s
+  - Order status labels human-readable on dashboard
+
+  - Guest orders link by email at checkout + on login/register
+  - Order confirm page gated by session (not public)
+  - Customer order detail: status timeline + payment badge
+  - /accounts/orders/ full order history page
+  - Refund processed → order + payment status = refunded
+  - Admin orders: search UI + human-readable status labels
+
+[DONE] Mnxworld logo + mobile polish:
+  - Cropped logo from phone screenshot; white bg → transparent PNG
+  - Assets: static/images/mnxworld-logo{,-nav,-mark,-icon}.png + media/site/
+  - Navbar uses horizontal nav logo; footer uses full logo; favicon/mark
+  - Brand SITE_BRAND=Mnxworld; SiteSettings logo wired
+  - Mobile nav: hamburger + centered logo + search/account/cart
+  - Hero CTAs stack full-width on mobile; smaller type/padding
+  - Newsletter popup stacks vertically on mobile
+  - Verified @390px: no horizontal overflow on home/shop/PDP
+

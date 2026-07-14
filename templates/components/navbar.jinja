@@ -1,9 +1,16 @@
 <!-- Main Navigation -->
 <header class="bg-white border-b border-gray-100 sticky top-0 z-40">
-  <div class="max-w-screen-2xl mx-auto px-4 lg:px-8">
-    <div class="flex items-center justify-between h-16 lg:h-20">
+  <div class="max-w-screen-2xl mx-auto px-3 sm:px-4 lg:px-8">
+    <div class="flex items-center justify-between gap-2 h-14 sm:h-16 lg:h-20">
 
-      <!-- Left Nav -->
+      <!-- Mobile menu button -->
+      <button @click="navMobile = !navMobile"
+              class="lg:hidden p-2 -ml-1 text-gray-700 hover:text-navy-700"
+              aria-label="Menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="navMobile ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'"/></svg>
+      </button>
+
+      <!-- Left Nav (desktop) -->
       <nav class="hidden lg:flex items-center gap-8 flex-1">
 
         <!-- Engagement Ring Dropdown -->
@@ -63,85 +70,64 @@
           </div>
         </div>
 
-        <!-- Truly Custom -->
-        <a href="#" class="text-xs font-medium tracking-widest uppercase text-gray-800 hover:text-navy-700 transition-colors flex items-center gap-1">
-          Truly Custom
-          <svg class="w-3 h-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        <a href="{{ url('products:shop') }}" class="text-xs font-medium tracking-widest uppercase text-gray-800 hover:text-navy-700 transition-colors">
+          Shop All
         </a>
       </nav>
 
-      <!-- Logo (center) -->
-      <a href="{{ url('core:home') }}" class="flex flex-col items-center flex-shrink-0 mx-6">
-        {% if site_settings.logo %}
-        <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" class="h-8 lg:h-10 object-contain">
-        {% else %}
-        <div class="flex items-center gap-1 mb-0.5">
-          <svg class="w-3 h-3 text-gold-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-          <svg class="w-4 h-4 text-gold-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-          <svg class="w-3 h-3 text-gold-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-        </div>
-        <span class="font-serif text-lg lg:text-2xl font-normal tracking-[0.15em] text-navy-800 uppercase leading-none">{{ site_settings.site_name }}</span>
-        {% endif %}
+      <!-- Logo -->
+      <a href="{{ url('core:home') }}" class="flex items-center justify-center flex-shrink-0 min-w-0 lg:mx-6">
+        <img src="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{{ default_site_logo }}{% endif %}"
+             alt="{{ site_settings.site_name or site_brand }}"
+             class="h-9 sm:h-10 lg:h-12 w-auto max-w-[160px] sm:max-w-[200px] lg:max-w-[240px] object-contain">
       </a>
 
-      <!-- Right Nav -->
-      <div class="hidden lg:flex items-center gap-6 flex-1 justify-end">
-        <a href="{{ url('core:about') }}" class="text-xs font-medium tracking-widest uppercase text-gray-800 hover:text-navy-700 transition-colors">About</a>
-        <a href="{{ url('core:contact') }}" class="text-xs font-medium tracking-widest uppercase text-gray-800 hover:text-navy-700 transition-colors">Contact</a>
+      <!-- Right actions -->
+      <div class="flex items-center gap-3 sm:gap-5 lg:gap-6 flex-1 justify-end">
+        <a href="{{ url('core:about') }}" class="hidden lg:inline text-xs font-medium tracking-widest uppercase text-gray-800 hover:text-navy-700 transition-colors">About</a>
+        <a href="{{ url('core:contact') }}" class="hidden lg:inline text-xs font-medium tracking-widest uppercase text-gray-800 hover:text-navy-700 transition-colors">Contact</a>
 
-        <!-- Currency Selector -->
-        <div class="relative" x-data="{ open: false }">
+        <div class="relative hidden md:block" x-data="{ open: false }">
           <button @click="open = !open" class="flex items-center gap-1 text-xs font-medium tracking-wider uppercase text-gray-800 hover:text-navy-700">
             <span class="text-base">🇮🇳</span> INR ₹
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </button>
         </div>
 
-        <!-- Search Icon -->
-        <button @click="searchOpen = true" class="text-gray-700 hover:text-navy-700 transition-colors" aria-label="Search">
+        <button @click="searchOpen = true" class="text-gray-700 hover:text-navy-700 transition-colors p-1" aria-label="Search">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         </button>
 
-        <!-- Account Icon -->
         <a href="{% if request.user.is_authenticated %}{{ url('users:dashboard') }}{% else %}{{ url('users:login') }}{% endif %}"
-           class="text-gray-700 hover:text-navy-700 transition-colors" aria-label="Account">
+           class="text-gray-700 hover:text-navy-700 transition-colors p-1" aria-label="Account">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
         </a>
 
-        <!-- Cart Icon -->
-        <button @click="cartOpen = true; $dispatch('cart-opened')" class="relative text-gray-700 hover:text-navy-700 transition-colors" aria-label="Cart">
+        <button @click="cartOpen = true; $dispatch('cart-opened')" class="relative text-gray-700 hover:text-navy-700 transition-colors p-1" aria-label="Cart">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-          <span id="cart-count" class="absolute -top-2 -right-2 bg-navy-700 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium leading-none">{{ cart|length }}</span>
+          <span id="cart-count" class="absolute -top-1.5 -right-1.5 bg-navy-700 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium leading-none">{{ cart|length }}</span>
         </button>
       </div>
-
-      <!-- Mobile menu button -->
-      <button @click="navMobile = !navMobile" class="lg:hidden p-2 text-gray-700">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="navMobile ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'"/></svg>
-      </button>
     </div>
   </div>
 
   <!-- Mobile Menu -->
-  <div x-cloak x-show="navMobile" x-transition class="lg:hidden border-t border-gray-100 bg-white">
-    <div class="px-6 py-4 space-y-3">
-      <a href="{{ url('core:home') }}" class="block py-2 text-sm font-medium tracking-wide uppercase text-gray-800">Home</a>
-      <a href="/shop/" class="block py-2 text-sm font-medium tracking-wide uppercase text-gray-800">Shop All</a>
-      <a href="{{ url('products:collection', slug='engagement-rings') }}" class="block py-2 text-sm font-medium tracking-wide uppercase text-gray-800">Engagement Rings</a>
-      <a href="{{ url('products:collection', slug='jewelry') }}" class="block py-2 text-sm font-medium tracking-wide uppercase text-gray-800">Jewelry</a>
-      <a href="{{ url('core:about') }}" class="block py-2 text-sm font-medium tracking-wide uppercase text-gray-800">About</a>
-      <a href="{{ url('core:contact') }}" class="block py-2 text-sm font-medium tracking-wide uppercase text-gray-800">Contact</a>
-      <div class="flex items-center gap-4 pt-2 border-t border-gray-100">
-        <button @click="searchOpen = true; navMobile = false" class="text-gray-700">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        </button>
-        <a href="{% if request.user.is_authenticated %}{{ url('users:dashboard') }}{% else %}{{ url('users:login') }}{% endif %}" class="text-gray-700">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-        </a>
-        <button @click="cartOpen = true; navMobile = false" class="text-gray-700">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-        </button>
-      </div>
+  <div x-cloak x-show="navMobile" x-transition class="lg:hidden border-t border-gray-100 bg-white max-h-[70vh] overflow-y-auto">
+    <div class="px-4 py-4 space-y-1">
+      <a href="{{ url('core:home') }}" @click="navMobile = false" class="block py-2.5 text-sm font-medium tracking-wide uppercase text-gray-800">Home</a>
+      <a href="{{ url('products:shop') }}" @click="navMobile = false" class="block py-2.5 text-sm font-medium tracking-wide uppercase text-gray-800">Shop All</a>
+      <a href="{{ url('products:collection', slug='engagement-rings') }}" @click="navMobile = false" class="block py-2.5 text-sm font-medium tracking-wide uppercase text-gray-800">Engagement Rings</a>
+      <a href="{{ url('products:collection', slug='toi-et-moi-rings') }}" @click="navMobile = false" class="block py-2.5 text-sm font-medium tracking-wide uppercase text-gray-800">Toi Et Moi</a>
+      <a href="{{ url('products:collection', slug='necklaces') }}" @click="navMobile = false" class="block py-2.5 text-sm font-medium tracking-wide uppercase text-gray-800">Necklaces</a>
+      <a href="{{ url('products:collection', slug='earrings') }}" @click="navMobile = false" class="block py-2.5 text-sm font-medium tracking-wide uppercase text-gray-800">Earrings</a>
+      <a href="{{ url('products:collection', slug='bracelets') }}" @click="navMobile = false" class="block py-2.5 text-sm font-medium tracking-wide uppercase text-gray-800">Bracelets</a>
+      <a href="{{ url('core:about') }}" @click="navMobile = false" class="block py-2.5 text-sm font-medium tracking-wide uppercase text-gray-800">About</a>
+      <a href="{{ url('core:contact') }}" @click="navMobile = false" class="block py-2.5 text-sm font-medium tracking-wide uppercase text-gray-800">Contact</a>
+      {% if request.user.is_authenticated %}
+      <a href="{{ url('users:dashboard') }}" @click="navMobile = false" class="block py-2.5 text-sm font-medium tracking-wide uppercase text-navy-700 border-t border-gray-100 mt-2 pt-3">My Account</a>
+      {% else %}
+      <a href="{{ url('users:login') }}" @click="navMobile = false" class="block py-2.5 text-sm font-medium tracking-wide uppercase text-navy-700 border-t border-gray-100 mt-2 pt-3">Sign In</a>
+      {% endif %}
     </div>
   </div>
 </header>

@@ -5,10 +5,10 @@
     <a href="{{ url('control:order_detail', pk=order.pk) }}" class="text-gold-400 hover:underline font-medium">#{{ order.order_number }}</a>
   </td>
   <td class="px-4 py-3 text-gray-300">{{ order.first_name }} {{ order.last_name }}</td>
-  <td class="px-4 py-3 text-gray-400">{{ order.items.count() }} item{{ 's' if order.items.count() != 1 }}</td>
+  <td class="px-4 py-3 text-gray-400">{{ order.items.all()|length }} item{{ 's' if order.items.all()|length != 1 }}</td>
   <td class="px-4 py-3 text-gray-200 font-medium">₹{{ order.total }}</td>
   <td class="px-4 py-3 text-gray-500">{{ order.created_at.strftime('%b %d, %Y') }}</td>
-  <td class="px-4 py-3"><span class="badge {{ sc.get(order.status, 'bg-gray-700 text-gray-300') }}">{{ order.status }}</span></td>
+  <td class="px-4 py-3"><span class="badge {{ sc.get(order.status, 'bg-gray-700 text-gray-300') }}">{{ order.get_status_display() }}</span></td>
   <td class="px-4 py-3">
     <a href="{{ url('control:order_detail', pk=order.pk) }}" class="ctrl-btn ctrl-btn-gray py-1 px-2">Manage</a>
   </td>

@@ -6,7 +6,7 @@
 {% block content %}
 
 <!-- HERO SECTION -->
-<section class="relative min-h-[90vh] flex items-end pb-20 overflow-hidden">
+<section class="relative min-h-[75vh] sm:min-h-[90vh] flex items-end pb-12 sm:pb-20 overflow-hidden">
   <!-- Real jewelry hero background from Unsplash -->
   <div class="absolute inset-0">
     <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=1600&q=85&fit=crop&crop=center"
@@ -19,26 +19,26 @@
   </div>
 
   <!-- Hero content -->
-  <div class="relative z-10 max-w-screen-xl mx-auto px-6 w-full">
+  <div class="relative z-10 max-w-screen-xl mx-auto px-4 sm:px-6 w-full">
     <div class="max-w-2xl">
-      <p class="text-xs font-medium tracking-[0.3em] uppercase text-white/80 mb-4">Welcome to {{ site_brand }}</p>
-      <h1 class="font-serif text-5xl md:text-7xl text-white leading-tight mb-2">
+      <p class="text-[10px] sm:text-xs font-medium tracking-[0.25em] sm:tracking-[0.3em] uppercase text-white/80 mb-3 sm:mb-4">Welcome to {{ site_brand }}</p>
+      <h1 class="font-serif text-3xl sm:text-5xl md:text-7xl text-white leading-tight mb-2">
         IGI / GIA Certified
       </h1>
-      <div class="relative inline-block mb-6">
-        <h2 class="font-serif text-5xl md:text-6xl italic text-white/95 leading-tight">
+      <div class="relative inline-block mb-4 sm:mb-6">
+        <h2 class="font-serif text-3xl sm:text-5xl md:text-6xl italic text-white/95 leading-tight">
           Fine Jewelry
         </h2>
         <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gold-500 opacity-80"></div>
       </div>
-      <p class="text-base text-white/80 max-w-xl leading-relaxed mb-8">
+      <p class="text-sm sm:text-base text-white/80 max-w-xl leading-relaxed mb-6 sm:mb-8">
         Purchase $3,000 USD or more and receive a Stud Earring valued at $700 USD absolutely free!
       </p>
-      <div class="flex flex-wrap gap-4">
-        <a href="{{ url('products:collection', slug='engagement-rings') }}" class="btn-outline btn-outline-white">
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        <a href="{{ url('products:collection', slug='engagement-rings') }}" class="btn-outline btn-outline-white text-center w-full sm:w-auto">
           Begin with a Setting &rarr;
         </a>
-        <a href="{{ url('products:collection', slug='lab-grown-diamonds') }}" class="btn-outline btn-outline-white">
+        <a href="{{ url('products:collection', slug='lab-grown-diamonds') }}" class="btn-outline btn-outline-white text-center w-full sm:w-auto">
           Begin with a Stone &rarr;
         </a>
       </div>

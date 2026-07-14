@@ -9,7 +9,7 @@ SITE_SETTINGS_CACHE_KEY = 'core:site_settings'
 class SiteSettings(models.Model):
     """Singleton row holding common public store info, edited at /sd/."""
 
-    site_name = models.CharField(max_length=200, default='MnxStore')
+    site_name = models.CharField(max_length=200, default='Mnxworld')
     logo = models.ImageField(upload_to='site/', blank=True, null=True)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=30, blank=True)

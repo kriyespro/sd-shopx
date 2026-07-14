@@ -41,7 +41,21 @@ class Cart:
             self.save()
 
     def add(self, product, quantity=1, metal='', ring_size='', override_qty=False):
+        """Add/update a cart line. Returns status dict for UX messaging."""
         product_id = str(product.id)
+        if product.stock <= 0:
+            if product_id in self.cart:
+                del self.cart[product_id]
+                self.save()
+            return {
+                'ok': False,
+                'out_of_stock': True,
+                'clamped': False,
+                'quantity': 0,
+            }
+
+        requested = quantity
+        prev_qty = self.cart.get(product_id, {}).get('quantity', 0)
         if product_id not in self.cart:
             self.cart[product_id] = {
                 'quantity': 0,
@@ -51,16 +65,42 @@ class Cart:
                 'metal': metal,
                 'ring_size': ring_size,
             }
+        elif metal or ring_size:
+            # Refresh options on subsequent adds when provided
+            if metal:
+                self.cart[product_id]['metal'] = metal
+            if ring_size:
+                self.cart[product_id]['ring_size'] = ring_size
+
         if override_qty:
             self.cart[product_id]['quantity'] = quantity
         else:
             self.cart[product_id]['quantity'] += quantity
-        # Never let the cart hold more than is in stock.
-        self.cart[product_id]['quantity'] = max(0, min(self.cart[product_id]['quantity'], product.stock))
-        if self.cart[product_id]['quantity'] == 0:
-            del self.cart[product_id]
-        self.save()
 
+        clamped = False
+        if self.cart[product_id]['quantity'] > product.stock:
+            self.cart[product_id]['quantity'] = product.stock
+            clamped = True
+
+        if self.cart[product_id]['quantity'] <= 0:
+            del self.cart[product_id]
+            self.save()
+            return {
+                'ok': False,
+                'out_of_stock': product.stock <= 0,
+                'clamped': True,
+                'quantity': 0,
+            }
+
+        self.save()
+        final_qty = self.cart[product_id]['quantity']
+        return {
+            'ok': True,
+            'out_of_stock': False,
+            'clamped': clamped or (not override_qty and final_qty < prev_qty + requested),
+            'quantity': final_qty,
+            'stock': product.stock,
+        }
     def save(self):
         self.session.modified = True
 

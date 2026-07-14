@@ -12,6 +12,7 @@ from .forms import ProfileEditForm
 from . import services
 from products.models import Product
 from orders.models import Order
+from orders import services as order_services
 from control.permissions import can_access_control
 
 
@@ -34,6 +35,7 @@ def register(request):
                 first_name=first_name, last_name=last_name
             )
             UserProfile.objects.create(user=user)
+            order_services.link_guest_orders_to_user(user)
             login(request, user)
             messages.success(request, f'Welcome, {first_name}!')
             return redirect('users:dashboard')
@@ -48,6 +50,7 @@ def user_login(request):
         password = request.POST.get('password')
         user = authenticate(request, username=email, password=password)
         if user:
+            order_services.link_guest_orders_to_user(user)
             login(request, user)
             next_url = request.GET.get('next') or request.POST.get('next')
             if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
@@ -65,19 +68,35 @@ def user_logout(request):
 
 @login_required
 def dashboard(request):
+    order_services.link_guest_orders_to_user(request.user)
     orders = Order.objects.filter(user=request.user).order_by('-created_at')[:5]
+    order_count = Order.objects.filter(user=request.user).count()
     wishlist = Wishlist.objects.filter(user=request.user).select_related('product')
     return render(request, 'users/dashboard.jinja', {
         'orders': orders,
+        'order_count': order_count,
         'wishlist': wishlist,
         'show_mission_control_link': can_access_control(request.user),
     })
 
 
 @login_required
+def order_list(request):
+    order_services.link_guest_orders_to_user(request.user)
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'users/order_list.jinja', {'orders': orders})
+
+
+@login_required
 def order_detail(request, order_number):
     order = services.get_user_order(request.user, order_number)
-    return render(request, 'users/order_detail.jinja', {'order': order})
+    timeline = order_services.get_order_timeline(order)
+    payment = getattr(order, 'payment', None)
+    return render(request, 'users/order_detail.jinja', {
+        'order': order,
+        'timeline': timeline,
+        'payment': payment,
+    })
 
 
 @login_required

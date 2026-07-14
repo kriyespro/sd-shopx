@@ -5,6 +5,7 @@ from cart.cart import Cart
 from products.models import Product
 from .models import Order, OrderItem
 from .forms import CheckoutForm
+from . import services
 
 
 def checkout(request):
@@ -37,7 +38,12 @@ def checkout(request):
                     )
                     return redirect('cart:detail')
 
+                order_user = services.resolve_order_user(
+                    form.cleaned_data['email'],
+                    request.user if request.user.is_authenticated else None,
+                )
                 order = Order(
+                    user=order_user,
                     first_name=form.cleaned_data['first_name'],
                     last_name=form.cleaned_data['last_name'],
                     email=form.cleaned_data['email'],
@@ -52,8 +58,6 @@ def checkout(request):
                     shipping_cost=0,
                     total=cart.get_total_price(),
                 )
-                if request.user.is_authenticated:
-                    order.user = request.user
                 order.save()
 
                 for item in items:
@@ -71,6 +75,8 @@ def checkout(request):
                     product.save(update_fields=['stock'])
 
                 cart.clear()
+
+            services.remember_recent_order(request, order.order_number)
             return redirect('orders:confirm', order_number=order.order_number)
     else:
         initial = {}
@@ -86,5 +92,5 @@ def checkout(request):
 
 
 def order_confirm(request, order_number):
-    order = get_object_or_404(Order, order_number=order_number)
+    order = services.get_order_for_confirm(request, order_number)
     return render(request, 'orders/order_confirm.jinja', {'order': order})

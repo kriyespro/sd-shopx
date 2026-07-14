@@ -6,14 +6,28 @@
 
 {% block content %}
 
-<!-- Status Filter -->
-<div class="flex flex-wrap gap-2 mb-4">
-  <a href="{{ url('control:orders') }}"
-     class="ctrl-btn {% if not status_filter %}ctrl-btn-gold{% else %}ctrl-btn-gray{% endif %} py-1.5 px-3">All</a>
-  {% for val, label in status_choices %}
-  <a href="{{ url('control:orders') }}?status={{ val }}"
-     class="ctrl-btn {% if status_filter == val %}ctrl-btn-gold{% else %}ctrl-btn-gray{% endif %} py-1.5 px-3">{{ label }}</a>
-  {% endfor %}
+<!-- Status Filter + Search -->
+<div class="flex flex-wrap items-center gap-3 mb-4">
+  <div class="flex flex-wrap gap-2">
+    <a href="{{ url('control:orders') }}"
+       class="ctrl-btn {% if not status_filter %}ctrl-btn-gold{% else %}ctrl-btn-gray{% endif %} py-1.5 px-3">All</a>
+    {% for val, label in status_choices %}
+    <a href="{{ url('control:orders') }}?status={{ val }}"
+       class="ctrl-btn {% if status_filter == val %}ctrl-btn-gold{% else %}ctrl-btn-gray{% endif %} py-1.5 px-3">{{ label }}</a>
+    {% endfor %}
+  </div>
+  <form class="ml-auto flex gap-2"
+        hx-get="{{ url('control:orders') }}"
+        hx-target="#order-rows"
+        hx-trigger="keyup changed delay:300ms from:#order-search, submit"
+        hx-push-url="true">
+    <input id="order-search" name="q" value="{{ q }}" placeholder="Order # or email…"
+           class="ctrl-input w-56">
+    {% if status_filter %}
+    <input type="hidden" name="status" value="{{ status_filter }}">
+    {% endif %}
+    <button type="submit" class="ctrl-btn ctrl-btn-gray py-1.5 px-3">Search</button>
+  </form>
 </div>
 
 <div class="ctrl-card overflow-hidden">

@@ -1,0 +1,40 @@
+{% extends "base.jinja" %}
+
+{% block title %}My Orders — {{ site_brand }}{% endblock %}
+
+{% block content %}
+<div class="page-bg min-h-screen py-10">
+  <div class="max-w-3xl mx-auto px-6">
+    <a href="{{ url('users:dashboard') }}" class="text-sm text-navy-600 hover:text-navy-800 mb-6 inline-block">&larr; Back to account</a>
+    <h1 class="font-serif text-3xl text-navy-800 mb-8">My Orders</h1>
+
+    {% if orders %}
+    <div class="space-y-3">
+      {% for order in orders %}
+      <a href="{{ url('users:order_detail', order_number=order.order_number) }}"
+         class="bg-white border border-gray-100 p-4 flex items-center justify-between hover:border-navy-200 transition-colors block shadow-sm">
+        <div>
+          <p class="text-sm font-medium text-navy-700 font-mono">{{ order.order_number }}</p>
+          <p class="text-xs text-gray-400 mt-0.5">{{ order.created_at.strftime('%d %b %Y') }}</p>
+        </div>
+        <div class="text-right">
+          <p class="text-sm font-medium text-gray-900">Rs. {{ "{:,.2f}".format(order.total) }}</p>
+          <span class="text-xs px-2 py-0.5 capitalize font-medium
+            {% if order.status == 'delivered' %}bg-green-100 text-green-700
+            {% elif order.status == 'cancelled' or order.status == 'refunded' %}bg-red-100 text-red-700
+            {% else %}bg-amber-100 text-amber-700{% endif %}">
+            {{ order.get_status_display() }}
+          </span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white border border-gray-100 p-10 text-center shadow-sm">
+      <p class="text-sm text-gray-400 mb-4">No orders yet.</p>
+      <a href="{{ url('products:shop') }}" class="btn-outline">Start Shopping &rarr;</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

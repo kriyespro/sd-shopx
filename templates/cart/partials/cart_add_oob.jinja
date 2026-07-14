@@ -1,0 +1,16 @@
+{# Primary swap target is #cart-count (innerHTML) #}
+{{ cart|length }}
+{# Refresh drawer contents out-of-band #}
+<div id="cart-drawer" hx-swap-oob="innerHTML" class="flex flex-col h-full">
+  {% include 'cart/partials/cart_drawer_content.jinja' %}
+</div>
+{% if cart_message %}
+<div id="cart-toast" hx-swap-oob="true"
+     class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-navy-800 text-white text-sm px-5 py-3 shadow-lg max-w-sm text-center"
+     x-data="{ show: true }"
+     x-show="show"
+     x-init="setTimeout(() => show = false, 3200)"
+     x-transition>
+  {{ cart_message }}
+</div>
+{% endif %}

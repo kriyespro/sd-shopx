@@ -113,7 +113,7 @@ def create_refund(order, amount, reason, notes, admin_user, request=None):
 
 
 def update_refund_status(refund_id, status, transaction_id, notes, processed_at, admin_user, request=None):
-    refund = Refund.objects.get(pk=refund_id)
+    refund = Refund.objects.select_related('order').get(pk=refund_id)
     old_status = refund.status
     refund.status = status
     refund.transaction_id = transaction_id
@@ -124,6 +124,21 @@ def update_refund_status(refund_id, status, transaction_id, notes, processed_at,
         refund.processed_at = timezone.now()
     refund.processed_by = admin_user
     refund.save()
+
+    order = refund.order
+    if status == 'processed' and order.status != 'refunded':
+        order.status = 'refunded'
+        order.save(update_fields=['status', 'updated_at'])
+        log_action(
+            admin_user, 'order_status', 'Order', order.id,
+            f"Order #{order.order_number} status → refunded (refund #{refund.id} processed)",
+            request,
+        )
+        payment = getattr(order, 'payment', None)
+        if payment and payment.status != 'refunded':
+            payment.status = 'refunded'
+            payment.save(update_fields=['status', 'updated_at'])
+
     log_action(admin_user, 'update', 'Refund', refund.id,
                f"Refund #{refund.id} status: {old_status} → {status}", request)
     return refund

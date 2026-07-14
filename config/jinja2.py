@@ -37,7 +37,7 @@ def environment(**options):
         'url': url,
         'get_messages': get_messages,
         'csrf_input': csrf_input,
-        'site_brand': getattr(settings, 'SITE_BRAND', 'MnxStore'),
+        'site_brand': getattr(settings, 'SITE_BRAND', 'Mnxworld'),
         'site_email': getattr(settings, 'SITE_EMAIL', 'hello@mnxstore.com'),
         'site_tagline': getattr(settings, 'SITE_TAGLINE', ''),
         'default_product_image': getattr(
@@ -46,6 +46,9 @@ def environment(**options):
             'https://images.unsplash.com/photo-1605100804763-247f67b3557e'
             '?w=600&q=80&fit=crop&crop=center',
         ),
+        'default_site_logo': static(getattr(settings, 'DEFAULT_SITE_LOGO', 'images/mnxworld-logo-nav.png')),
+        'default_site_logo_full': static(getattr(settings, 'DEFAULT_SITE_LOGO_FULL', 'images/mnxworld-logo.png')),
+        'default_site_mark': static(getattr(settings, 'DEFAULT_SITE_MARK', 'images/mnxworld-mark.png')),
     })
     env.install_null_translations()
     return env
